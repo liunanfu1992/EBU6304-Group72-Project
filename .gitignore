@@ -1,0 +1,32 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE settings
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Local reference documents
+document/
+
+# Java build outputs
+*.class
+*.jar
+*.war
+*.ear
+out/
+build/
+target/
+
+# Temporary files
+*.tmp
+*.swp
+*~

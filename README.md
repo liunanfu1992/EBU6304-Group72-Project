@@ -1,4 +1,5 @@
 This repository contains our group project for the Spring 2026 offering of EBU6304 Software Processes, focused on designing and developing a TA recruitment system for BUPT International School. 
+
 During the project initialization phase, team members should not push untested or unreviewed changes directly to the main branch, and should ensure that the `.gitignore` file is properly maintained to avoid polluting the repository.
 
 ## Example Workflow for Merging Work into `main`
@@ -21,3 +22,9 @@ After pushing your branch:
 1. Open a Pull Request on GitHub from `feature/update-readme` to `main`.
 2. Request at least one review from a teammate.
 3. Merge the Pull Request only after the changes have been reviewed.
+
+## Team Members
+
+| GitHub Username | Name | QMUL ID |
+| --- | --- | --- |
+| liunanfu1992 | Jiayang Lyu | 231226130 |

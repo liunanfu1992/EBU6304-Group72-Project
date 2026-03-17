@@ -32,4 +32,5 @@ After pushing your branch:
 | giveyouupn                                                    | Qikun Hu     | 231226255 |
 | Jimmmmmies                                                    | Zelang Wen   | 231226222 |
 | **[LiXiaoYaoCareFree](https://github.com/LiXiaoYaoCareFree)** | Lingyuan Li  | 231226277 |
+| goodjerry1223                                                 | Jiarui Xu    | 231226211 |
 

@@ -3,13 +3,22 @@ package com.group72.tarecruitment.repository.json;
 import com.group72.tarecruitment.config.AppConfig;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.util.JsonFileStore;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class ProfileRepository extends JsonRepository<Profile> {
     public ProfileRepository() {
-        super(new JsonFileStore(), AppConfig.resolveDataFile("profiles.json"), Profile.class);
+        this(new JsonFileStore(), AppConfig.resolveDataFile("profiles.json"));
+    }
+
+    public ProfileRepository(Path filePath) {
+        this(new JsonFileStore(), filePath);
+    }
+
+    protected ProfileRepository(JsonFileStore fileStore, Path filePath) {
+        super(fileStore, filePath, Profile.class);
     }
 
     public List<Profile> findAll() {

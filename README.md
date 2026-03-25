@@ -2,6 +2,10 @@ This repository contains our group project for the Spring 2026 offering of EBU63
 
 During the project initialization phase, team members should not push untested or unreviewed changes directly to the main branch, and should ensure that the `.gitignore` file is properly maintained to avoid polluting the repository.
 
+## Tech Stack
+
+Java 17, Maven, Servlet/JSP, Tomcat 9, HTML/CSS/JavaScript, and local JSON file storage.
+
 ## Example Workflow for Merging Work into `main`
 
 Use a separate branch for your own work, then open a pull request to merge it into `main`.
@@ -9,17 +13,17 @@ Use a separate branch for your own work, then open a pull request to merge it in
 ```bash
 git checkout main
 git pull origin main
-git checkout -b feature/update-readme
+git checkout -b yourname/update-readme
 
 # make your changes
 git add .
-git commit -m "docs: update README"
-git push -u origin feature/update-readme
+git commit -m "<docs> update README"
+git push -u origin yourname/update-readme
 ```
 
 After pushing your branch:
 
-1. Open a Pull Request on GitHub from `feature/update-readme` to `main`.
+1. Open a Pull Request on GitHub from `yourname/update-readme` to `main`.
 2. Request at least one review from a teammate.
 3. Merge the Pull Request only after the changes have been reviewed.
 
@@ -27,10 +31,9 @@ After pushing your branch:
 
 | GitHub Username                                               | Name         | QMUL ID   |
 | ------------------------------------------------------------- | ------------ | --------- |
-| liunanfu1992                                                  | Jiayang Lyu  | 231226130 |
-| yztangyc                                                      | Yucheng Tang | 231226141 |
-| giveyouupn                                                    | Qikun Hu     | 231226255 |
-| Jimmmmmies                                                    | Zelang Wen   | 231226222 |
+| **[liunanfu1992](https://github.com/liunanfu1992)**           | Jiayang Lyu  | 231226130 |
+| **[yztangyc](https://github.com/yztangyc)**                   | Yucheng Tang | 231226141 |
+| **[giveyouupn](https://github.com/giveyouupn)**               | Qikun Hu     | 231226255 |
+| **[Jimmmmmies](https://github.com/Jimmmmmies)**               | Zelang Wen   | 231226222 |
 | **[LiXiaoYaoCareFree](https://github.com/LiXiaoYaoCareFree)** | Lingyuan Li  | 231226277 |
-| goodjerry1223                                                 | Jiarui Xu    | 231226211 |
-
+| **[goodjerry1223](https://github.com/goodjerry1223)**         | Jiarui Xu    | 231226211 |

@@ -1,8 +1,12 @@
 package com.group72.tarecruitment.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.group72.tarecruitment.util.SkillCatalog;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
     private String id;
     private String title;
@@ -67,7 +71,7 @@ public class Job {
     }
 
     public void setRequiredSkills(List<String> requiredSkills) {
-        this.requiredSkills = requiredSkills;
+        this.requiredSkills = requiredSkills == null ? new ArrayList<>() : new ArrayList<>(requiredSkills);
     }
 
     public Integer getWeeklyHours() {
@@ -92,5 +96,20 @@ public class Job {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @JsonIgnore
+    public List<String> getPredefinedRequiredSkills() {
+        return SkillCatalog.extractPredefinedSkills(requiredSkills);
+    }
+
+    @JsonIgnore
+    public List<String> getCustomRequiredSkills() {
+        return SkillCatalog.extractCustomSkills(requiredSkills);
+    }
+
+    @JsonIgnore
+    public String getCustomRequiredSkillsInput() {
+        return SkillCatalog.joinSkills(getCustomRequiredSkills());
     }
 }

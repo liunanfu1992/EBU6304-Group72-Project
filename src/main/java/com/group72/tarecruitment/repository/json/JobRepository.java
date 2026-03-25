@@ -3,12 +3,21 @@ package com.group72.tarecruitment.repository.json;
 import com.group72.tarecruitment.config.AppConfig;
 import com.group72.tarecruitment.model.Job;
 import com.group72.tarecruitment.util.JsonFileStore;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JobRepository extends JsonRepository<Job> {
     public JobRepository() {
-        super(new JsonFileStore(), AppConfig.resolveDataFile("jobs.json"), Job.class);
+        this(new JsonFileStore(), AppConfig.resolveDataFile("jobs.json"));
+    }
+
+    public JobRepository(Path filePath) {
+        this(new JsonFileStore(), filePath);
+    }
+
+    protected JobRepository(JsonFileStore fileStore, Path filePath) {
+        super(fileStore, filePath, Job.class);
     }
 
     public List<Job> findAll() {

@@ -1,5 +1,6 @@
 package com.group72.tarecruitment.servlet.mo;
 
+import com.group72.tarecruitment.model.Job;
 import com.group72.tarecruitment.model.JobCreateResult;
 import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.JobRepository;
@@ -9,14 +10,15 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/mo/jobs/new")
-public class JobCreateServlet extends HttpServlet {
+@WebServlet("/mo/jobs/edit")
+public class MoJobEditServlet extends HttpServlet {
     private transient JobService jobService;
 
     @Override
@@ -26,14 +28,25 @@ public class JobCreateServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        populateFormAttributes(request);
+        User currentUser = (User) request.getSession().getAttribute("currentUser");
+        String jobId = request.getParameter("jobId");
+        Optional<Job> job = jobService.findOwnedJob(jobId, currentUser.getId());
+        if (job.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/mo/jobs?notFound=1");
+            return;
+        }
+
+        populateFormAttributes(request, job.get());
         request.getRequestDispatcher(ViewPaths.MO_JOB_FORM).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
-        JobCreateResult result = jobService.createJob(
+        String jobId = request.getParameter("jobId");
+
+        JobCreateResult result = jobService.updateJob(
+                jobId,
                 request.getParameter("title"),
                 request.getParameter("moduleCode"),
                 request.getParameter("description"),
@@ -46,23 +59,23 @@ public class JobCreateServlet extends HttpServlet {
         if (!result.isSuccess()) {
             request.setAttribute("jobDraft", result.getJob());
             request.setAttribute("errors", result.getErrors());
-            populateFormAttributes(request);
-            request.setAttribute("selectedSkillMap", toSkillSelectionMap(result.getJob().getPredefinedRequiredSkills()));
+            populateFormAttributes(request, result.getJob());
             request.getRequestDispatcher(ViewPaths.MO_JOB_FORM).forward(request, response);
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/mo/jobs/new?created=1");
+        response.sendRedirect(request.getContextPath() + "/mo/jobs/view?jobId=" + result.getJob().getId() + "&updated=1");
     }
 
-    private void populateFormAttributes(HttpServletRequest request) {
+    private void populateFormAttributes(HttpServletRequest request, Job job) {
+        request.setAttribute("jobDraft", job);
         request.setAttribute("availableSkills", jobService.getAvailableSkills());
-        request.setAttribute("selectedSkillMap", Map.of());
-        request.setAttribute("pageTitle", "Create Job Listing");
-        request.setAttribute("pageDescription", "Use the shared predefined skill vocabulary so TA-side matching stays consistent.");
-        request.setAttribute("formAction", request.getContextPath() + "/mo/jobs/new");
-        request.setAttribute("submitLabel", "Create Job");
-        request.setAttribute("cancelPath", request.getContextPath() + "/mo/dashboard");
+        request.setAttribute("selectedSkillMap", toSkillSelectionMap(job.getPredefinedRequiredSkills()));
+        request.setAttribute("pageTitle", "Edit Job Listing");
+        request.setAttribute("pageDescription", "Update the job details and shared skill requirements for this posting.");
+        request.setAttribute("formAction", request.getContextPath() + "/mo/jobs/edit");
+        request.setAttribute("submitLabel", "Save Changes");
+        request.setAttribute("cancelPath", request.getContextPath() + "/mo/jobs/view?jobId=" + job.getId());
     }
 
     private Map<String, Boolean> toSkillSelectionMap(List<String> skills) {

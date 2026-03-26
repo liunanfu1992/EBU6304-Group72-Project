@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -78,6 +79,40 @@ public class CvService {
 
     public long getMaxCvSizeMb() {
         return MAX_CV_SIZE_BYTES / (1024 * 1024);
+    }
+
+    public Optional<Path> resolveStoredCv(Profile profile) {
+        if (profile == null || isBlank(profile.getCvPath())) {
+            return Optional.empty();
+        }
+
+        Path resolvedFile = cvStorageDir.resolve(profile.getCvPath()).normalize();
+        if (!resolvedFile.startsWith(cvStorageDir.normalize()) || !Files.isRegularFile(resolvedFile)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(resolvedFile);
+    }
+
+    public String getDownloadFileName(Profile profile) {
+        if (profile == null || isBlank(profile.getCvPath())) {
+            return "cv";
+        }
+        return Path.of(profile.getCvPath()).getFileName().toString();
+    }
+
+    public String getContentType(String fileName) {
+        String extension = extractExtension(fileName);
+        if ("pdf".equals(extension)) {
+            return "application/pdf";
+        }
+        if ("doc".equals(extension)) {
+            return "application/msword";
+        }
+        if ("docx".equals(extension)) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        }
+        return "application/octet-stream";
     }
 
     private List<String> validateUpload(String submittedFileName, long fileSize) {

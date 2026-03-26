@@ -28,6 +28,10 @@
         <c:when test="${not empty profile.cvPath}">
             <p><strong>Current uploaded CV:</strong> ${profile.cvFileName}</p>
             <p class="helper">Uploading a new file will replace the current CV reference in your profile.</p>
+            <div class="actions-row">
+                <a class="button-secondary" href="${pageContext.request.contextPath}/ta/cv/download">Download Current CV</a>
+            </div>
+            <p class="helper">The system currently supports secure upload and download. In-system preview can be added later.</p>
         </c:when>
         <c:otherwise>
             <p class="muted">No CV has been uploaded yet.</p>

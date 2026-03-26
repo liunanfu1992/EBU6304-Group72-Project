@@ -6,6 +6,7 @@ import com.group72.tarecruitment.util.JsonFileStore;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class JobRepository extends JsonRepository<Job> {
     public JobRepository() {
@@ -22,6 +23,12 @@ public class JobRepository extends JsonRepository<Job> {
 
     public List<Job> findAll() {
         return new ArrayList<>(findAllInternal());
+    }
+
+    public Optional<Job> findById(String jobId) {
+        return findAllInternal().stream()
+                .filter(job -> job.getId() != null && job.getId().equals(jobId))
+                .findFirst();
     }
 
     public void save(Job job) {

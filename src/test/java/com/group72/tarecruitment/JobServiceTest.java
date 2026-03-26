@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.group72.tarecruitment.model.JobCreateResult;
+import com.group72.tarecruitment.model.JobCandidateView;
 import com.group72.tarecruitment.model.JobMatchView;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.repository.json.JobRepository;
+import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.service.JobService;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,7 +22,10 @@ class JobServiceTest {
 
     @Test
     void listMatchesForProfileShouldSortBySkillCoverage() {
-        JobService service = new JobService(new JobRepository(tempDir.resolve("jobs.json")));
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs.json")),
+                new ProfileRepository(tempDir.resolve("profiles.json"))
+        );
 
         assertTrue(service.createJob(
                 "Programming TA",
@@ -67,7 +72,10 @@ class JobServiceTest {
 
     @Test
     void createJobShouldNormalizeSkillsAndValidateWeeklyHours() {
-        JobService service = new JobService(new JobRepository(tempDir.resolve("jobs.json")));
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs.json")),
+                new ProfileRepository(tempDir.resolve("profiles.json"))
+        );
 
         JobCreateResult successResult = service.createJob(
                 "Project TA",
@@ -97,5 +105,119 @@ class JobServiceTest {
 
         assertFalse(invalidResult.isSuccess());
         assertTrue(invalidResult.getErrors().contains("Weekly hours must be a positive integer."));
+    }
+
+    @Test
+    void listJobsByMoUserShouldKeepOwnersJobsIncludingClosedOnes() {
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs.json")),
+                new ProfileRepository(tempDir.resolve("profiles.json"))
+        );
+
+        assertTrue(service.createJob(
+                "Open Job",
+                "CS111",
+                "Still hiring",
+                new String[]{"Java"},
+                "",
+                "6",
+                "mo-1"
+        ).isSuccess());
+        assertTrue(service.createJob(
+                "Other Owner Job",
+                "CS222",
+                "Different owner",
+                new String[]{"Python"},
+                "",
+                "5",
+                "mo-2"
+        ).isSuccess());
+        assertTrue(service.createJob(
+                "Soon Closed Job",
+                "CS333",
+                "Will be closed",
+                new String[]{"Communication"},
+                "",
+                "4",
+                "mo-1"
+        ).isSuccess());
+
+        String closedJobId = service.listJobsByMoUser("mo-1").stream()
+                .filter(job -> "Soon Closed Job".equals(job.getTitle()))
+                .findFirst()
+                .orElseThrow()
+                .getId();
+
+        assertTrue(service.updateJobStatus(closedJobId, "mo-1", "CLOSED"));
+
+        List<String> ownedTitles = service.listJobsByMoUser("mo-1").stream()
+                .map(job -> job.getTitle() + ":" + job.getStatus())
+                .toList();
+
+        assertEquals(List.of("Open Job:OPEN", "Soon Closed Job:CLOSED"), ownedTitles);
+        assertEquals(
+                List.of("Open Job", "Other Owner Job"),
+                service.listAllOpenJobs().stream().map(job -> job.getTitle()).sorted().toList()
+        );
+    }
+
+    @Test
+    void candidatePreviewShouldRankProfilesByPredefinedSkillCoverage() {
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles.json"));
+        JobService service = new JobService(jobRepository, profileRepository);
+
+        JobCreateResult result = service.createJob(
+                "Algorithms Job",
+                "CS444",
+                "Need Java and algorithms support",
+                new String[]{"Java", "Algorithms"},
+                "",
+                "8",
+                "mo-1"
+        );
+        assertTrue(result.isSuccess());
+
+        profileRepository.save(new Profile(
+                "ta-1",
+                "Alice",
+                "20260001",
+                "Computer Science",
+                "alice@example.com",
+                List.of("Java", "Algorithms"),
+                List.of("Mentoring"),
+                null
+        ));
+        profileRepository.save(new Profile(
+                "ta-2",
+                "Bob",
+                "20260002",
+                "Software Engineering",
+                "bob@example.com",
+                List.of("Java"),
+                List.of(),
+                null
+        ));
+        profileRepository.save(new Profile(
+                "ta-3",
+                "Carol",
+                "20260003",
+                "Mathematics",
+                "carol@example.com",
+                List.of("Presentation"),
+                List.of(),
+                null
+        ));
+
+        List<JobCandidateView> candidates = service.listCandidateMatches(result.getJob().getId(), "mo-1");
+
+        assertEquals(3, candidates.size());
+        assertEquals("Alice", candidates.get(0).getDisplayName());
+        assertEquals(100, candidates.get(0).getMatchPercent());
+        assertEquals("Bob", candidates.get(1).getDisplayName());
+        assertEquals(50, candidates.get(1).getMatchPercent());
+        assertEquals(List.of("Algorithms"), candidates.get(1).getMissingSkills());
+        assertEquals("Carol", candidates.get(2).getDisplayName());
+        assertEquals(0, candidates.get(2).getMatchPercent());
     }
 }

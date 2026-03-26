@@ -99,6 +99,16 @@ public class Job {
     }
 
     @JsonIgnore
+    public boolean isOpen() {
+        return status == null || !"CLOSED".equalsIgnoreCase(status);
+    }
+
+    @JsonIgnore
+    public boolean isClosed() {
+        return !isOpen();
+    }
+
+    @JsonIgnore
     public List<String> getPredefinedRequiredSkills() {
         return SkillCatalog.extractPredefinedSkills(requiredSkills);
     }

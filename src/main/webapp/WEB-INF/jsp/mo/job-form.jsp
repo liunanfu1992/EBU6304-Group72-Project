@@ -1,11 +1,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../common/header.jspf" %>
 <div class="card">
-    <h2>Create Job Listing</h2>
-    <p class="muted">Use the shared predefined skill vocabulary so TA-side matching stays consistent.</p>
+    <h2>${pageTitle}</h2>
+    <p class="muted">${pageDescription}</p>
 
     <c:if test="${param.created eq '1'}">
         <div class="success">Job created successfully.</div>
+    </c:if>
+
+    <c:if test="${param.updated eq '1'}">
+        <div class="success">Job updated successfully.</div>
     </c:if>
 
     <c:if test="${not empty errors}">
@@ -19,7 +23,11 @@
         </div>
     </c:if>
 
-    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/new">
+    <form method="post" action="${formAction}">
+        <c:if test="${not empty jobDraft.id}">
+            <input type="hidden" name="jobId" value="${jobDraft.id}">
+        </c:if>
+
         <label for="title">Title</label>
         <input id="title" name="title" value="${jobDraft.title}" required>
 
@@ -48,7 +56,10 @@
 
         <p class="helper">Predefined skills will be used directly by the TA-side matching preview. Custom skills are displayed, but not scored in Sprint 1.</p>
 
-        <button type="submit">Create Job</button>
+        <div class="actions-row">
+            <button type="submit">${submitLabel}</button>
+            <a class="button-secondary" href="${cancelPath}">Cancel</a>
+        </div>
     </form>
 </div>
 <%@ include file="../common/footer.jspf" %>

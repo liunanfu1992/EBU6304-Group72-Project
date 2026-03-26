@@ -87,6 +87,8 @@
             padding: 10px 16px;
             border-radius: 8px;
             cursor: pointer;
+            text-decoration: none;
+            font-size: 0.95rem;
         }
         table {
             width: 100%;
@@ -187,9 +189,72 @@
             background: #e2e8f0;
             color: #475569;
         }
+        .actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .button-secondary,
+        .button-warning {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            padding: 10px 16px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+        }
+        .button-secondary {
+            background: #e2e8f0;
+            color: #1f2937;
+        }
+        .button-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .inline-form {
+            margin: 0;
+        }
+        .inline-form input[type="hidden"] {
+            display: none;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-open {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .candidate-grid {
+            display: grid;
+            gap: 16px;
+        }
+        .candidate-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            background: #ffffff;
+        }
         @media (max-width: 720px) {
             .job-card-head {
                 flex-direction: column;
+            }
+            .actions-row {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>

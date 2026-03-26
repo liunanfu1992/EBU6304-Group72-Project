@@ -116,4 +116,14 @@ public class Profile {
     public void setCvPath(String cvPath) {
         this.cvPath = cvPath;
     }
+
+    @JsonIgnore
+    public boolean hasCv() {
+        return cvPath != null && !cvPath.isBlank();
+    }
+
+    @JsonIgnore
+    public String getCvFileName() {
+        return hasCv() ? cvPath : "";
+    }
 }

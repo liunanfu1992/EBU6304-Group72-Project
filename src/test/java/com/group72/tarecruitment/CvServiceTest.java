@@ -151,4 +151,40 @@ class CvServiceTest {
 
         assertTrue(service.resolveStoredCv(profile).isEmpty());
     }
+
+    @Test
+    void deleteCvShouldRemoveStoredFileAndClearProfileReference() throws Exception {
+        Path profileFile = tempDir.resolve("profiles.json");
+        Path cvDir = tempDir.resolve("storage/cv");
+        CvService service = new CvService(new ProfileRepository(profileFile), cvDir);
+        User user = new User("ta-7", "gina", "", Role.TA, "gina@example.com");
+
+        CvUploadResult uploadResult = service.uploadCv(
+                user,
+                "gina.pdf",
+                128,
+                new ByteArrayInputStream("resume".getBytes(StandardCharsets.UTF_8))
+        );
+        assertTrue(uploadResult.isSuccess());
+
+        Path storedFile = cvDir.resolve(uploadResult.getStoredFileName());
+        assertTrue(Files.exists(storedFile));
+
+        boolean deleted = service.deleteCv(user);
+
+        assertTrue(deleted);
+        assertFalse(Files.exists(storedFile));
+        assertFalse(service.getOrCreateProfile(user).hasCv());
+    }
+
+    @Test
+    void deleteCvShouldReturnFalseWhenNoCurrentCvExists() {
+        CvService service = new CvService(
+                new ProfileRepository(tempDir.resolve("profiles.json")),
+                tempDir.resolve("storage/cv")
+        );
+        User user = new User("ta-8", "henry", "", Role.TA, "henry@example.com");
+
+        assertFalse(service.deleteCv(user));
+    }
 }

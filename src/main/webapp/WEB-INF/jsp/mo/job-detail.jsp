@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../common/header.jspf" %>
 <div class="card">
+    <span class="eyebrow">Job Detail</span>
     <div class="job-card-head">
         <div>
             <h2>${job.title}</h2>
@@ -42,7 +43,7 @@
     <div class="actions-row">
         <a class="button-secondary" href="${pageContext.request.contextPath}/mo/jobs">Back to My Jobs</a>
         <a class="button-secondary" href="${pageContext.request.contextPath}/mo/jobs/edit?jobId=${job.id}">Edit Job</a>
-        <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/jobs/status">
+        <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/jobs/status" data-confirm="${job.open ? 'Close this job posting now?' : 'Reopen this job posting now?'}">
             <input type="hidden" name="jobId" value="${job.id}">
             <input type="hidden" name="source" value="detail">
             <c:choose>
@@ -60,8 +61,9 @@
 </div>
 
 <div class="card">
-    <h2>Candidate Preview</h2>
-    <p class="muted">This preview ranks TA profiles by predefined-skill coverage for the current job.</p>
+    <span class="eyebrow">Candidate Preview</span>
+    <h2 class="card-title">Candidate Preview</h2>
+    <p class="card-subtitle">This preview ranks TA profiles by predefined-skill coverage for the current job.</p>
 
     <c:choose>
         <c:when test="${empty candidateMatches}">

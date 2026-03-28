@@ -10,6 +10,7 @@ import com.group72.tarecruitment.model.Role;
 import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.service.CvService;
+import com.group72.tarecruitment.util.LocalDataCipher;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,10 +41,15 @@ class CvServiceTest {
         assertTrue(result.getStoredFileName().startsWith("ta-1-"));
         assertTrue(result.getStoredFileName().endsWith(".pdf"));
         assertTrue(Files.exists(cvDir.resolve(result.getStoredFileName())));
+        assertTrue(LocalDataCipher.isEncryptedPayload(Files.readAllBytes(cvDir.resolve(result.getStoredFileName()))));
 
         Profile profile = service.getOrCreateProfile(user);
         assertEquals(result.getStoredFileName(), profile.getCvPath());
         assertTrue(profile.hasCv());
+        assertEquals(
+                "pdf-content",
+                new String(service.readStoredCvBytes(profile).orElseThrow(), StandardCharsets.UTF_8)
+        );
     }
 
     @Test

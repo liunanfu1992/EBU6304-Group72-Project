@@ -5,11 +5,11 @@ import com.group72.tarecruitment.model.CvUploadResult;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
+import com.group72.tarecruitment.util.LocalDataCipher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,8 @@ public class CvService {
         try {
             Files.createDirectories(cvStorageDir);
             deleteExistingCvIfPresent(profile);
-            Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            byte[] uploadedBytes = inputStream.readAllBytes();
+            Files.write(targetFile, LocalDataCipher.encrypt(uploadedBytes));
             profile.setCvPath(storedFileName);
             profileRepository.save(profile);
             return new CvUploadResult(true, profile, List.of(), storedFileName);
@@ -117,6 +118,22 @@ public class CvService {
             return "cv";
         }
         return Path.of(profile.getCvPath()).getFileName().toString();
+    }
+
+    public Optional<byte[]> readStoredCvBytes(Profile profile) {
+        Optional<Path> storedCv = resolveStoredCv(profile);
+        if (storedCv.isEmpty()) {
+            return Optional.empty();
+        }
+
+        try {
+            byte[] storedBytes = Files.readAllBytes(storedCv.get());
+            return Optional.of(LocalDataCipher.isEncryptedPayload(storedBytes)
+                    ? LocalDataCipher.decrypt(storedBytes)
+                    : storedBytes);
+        } catch (IOException exception) {
+            return Optional.empty();
+        }
     }
 
     public String getContentType(String fileName) {

@@ -1,3 +1,70 @@
 </main>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+            form.addEventListener("submit", function (event) {
+                var message = form.getAttribute("data-confirm");
+                if (message && !window.confirm(message)) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        document.querySelectorAll("a[data-confirm], button[data-confirm]").forEach(function (element) {
+            element.addEventListener("click", function (event) {
+                var message = element.getAttribute("data-confirm");
+                if (message && !window.confirm(message)) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        document.querySelectorAll("[data-file-input]").forEach(function (input) {
+            var targetId = input.getAttribute("data-file-target");
+            var target = targetId ? document.getElementById(targetId) : null;
+            input.addEventListener("change", function () {
+                if (!target) {
+                    return;
+                }
+                if (input.files && input.files.length > 0) {
+                    target.textContent = "Selected file: " + input.files[0].name;
+                    return;
+                }
+                target.textContent = "No file selected yet.";
+            });
+        });
+
+        document.querySelectorAll("[data-skill-count]").forEach(function (wrapper) {
+            var targetId = wrapper.getAttribute("data-skill-count");
+            var target = targetId ? document.getElementById(targetId) : null;
+            var updateCount = function () {
+                if (!target) {
+                    return;
+                }
+                var selectedCount = wrapper.querySelectorAll("input[type='checkbox']:checked").length;
+                target.textContent = selectedCount + " selected";
+            };
+
+            wrapper.querySelectorAll("input[type='checkbox']").forEach(function (checkbox) {
+                checkbox.addEventListener("change", updateCount);
+            });
+            updateCount();
+        });
+
+        document.querySelectorAll("[data-password-toggle]").forEach(function (toggle) {
+            var inputId = toggle.getAttribute("data-password-toggle");
+            var input = document.getElementById(inputId);
+            if (!input) {
+                return;
+            }
+            toggle.addEventListener("click", function () {
+                var showing = input.type === "text";
+                input.type = showing ? "password" : "text";
+                toggle.textContent = showing ? "Show password" : "Hide password";
+            });
+        });
+    });
+</script>
+<div class="footer-note">Sprint 1 prototype built with Servlet, JSP, and local JSON persistence.</div>
 </body>
 </html>

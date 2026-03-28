@@ -1,10 +1,18 @@
 <%@ include file="../common/header.jspf" %>
 <div class="card">
-    <h2>MO Dashboard</h2>
-    <p class="muted">Sprint 1 entry point for MO job creation, editing, status management, and candidate preview.</p>
-    <ul>
-        <li><a href="${pageContext.request.contextPath}/mo/jobs/new">Post a New Job</a></li>
-        <li><a href="${pageContext.request.contextPath}/mo/jobs">Manage My Jobs</a></li>
-    </ul>
+    <span class="eyebrow">MO Workspace</span>
+    <h2 class="card-title">MO Dashboard</h2>
+    <p class="card-subtitle">Post TA jobs, maintain active listings, and review candidate preview results for each opening.</p>
+</div>
+
+<div class="dashboard-grid">
+    <a class="dashboard-link-card" href="${pageContext.request.contextPath}/mo/jobs/new">
+        <strong>Post a New Job</strong>
+        <span>Create a teaching assistant opening with structured and custom skill requirements.</span>
+    </a>
+    <a class="dashboard-link-card" href="${pageContext.request.contextPath}/mo/jobs">
+        <strong>Manage My Jobs</strong>
+        <span>Edit, close, reopen, and inspect candidate previews for jobs you own.</span>
+    </a>
 </div>
 <%@ include file="../common/footer.jspf" %>

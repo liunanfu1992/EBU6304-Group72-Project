@@ -1,8 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../common/header.jspf" %>
 <div class="card">
-    <h2>My Posted Jobs</h2>
-    <p class="muted">Manage your own job postings, update requirements, and close jobs when they are no longer active.</p>
+    <span class="eyebrow">MO Jobs</span>
+    <h2 class="card-title">My Posted Jobs</h2>
+    <p class="card-subtitle">Manage your own job postings, update requirements, and close jobs when they are no longer active.</p>
 
     <c:if test="${param.statusUpdated eq '1'}">
         <div class="success">Job status updated successfully.</div>
@@ -53,7 +54,7 @@
                         <div class="actions-row">
                             <a class="button-secondary" href="${pageContext.request.contextPath}/mo/jobs/view?jobId=${job.id}">View</a>
                             <a class="button-secondary" href="${pageContext.request.contextPath}/mo/jobs/edit?jobId=${job.id}">Edit</a>
-                            <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/jobs/status">
+                            <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/jobs/status" data-confirm="${job.open ? 'Close this job posting now?' : 'Reopen this job posting now?'}">
                                 <input type="hidden" name="jobId" value="${job.id}">
                                 <c:choose>
                                     <c:when test="${job.open}">

@@ -10,6 +10,7 @@ import com.group72.tarecruitment.model.Role;
 import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.service.CvService;
+import com.group72.tarecruitment.util.LocalDataCipher;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,10 +41,15 @@ class CvServiceTest {
         assertTrue(result.getStoredFileName().startsWith("ta-1-"));
         assertTrue(result.getStoredFileName().endsWith(".pdf"));
         assertTrue(Files.exists(cvDir.resolve(result.getStoredFileName())));
+        assertTrue(LocalDataCipher.isEncryptedPayload(Files.readAllBytes(cvDir.resolve(result.getStoredFileName()))));
 
         Profile profile = service.getOrCreateProfile(user);
         assertEquals(result.getStoredFileName(), profile.getCvPath());
         assertTrue(profile.hasCv());
+        assertEquals(
+                "pdf-content",
+                new String(service.readStoredCvBytes(profile).orElseThrow(), StandardCharsets.UTF_8)
+        );
     }
 
     @Test
@@ -150,5 +156,41 @@ class CvServiceTest {
         Profile profile = new Profile("ta-6", "frank", "", "", "frank@example.com", List.of(), List.of(), "../outside.pdf");
 
         assertTrue(service.resolveStoredCv(profile).isEmpty());
+    }
+
+    @Test
+    void deleteCvShouldRemoveStoredFileAndClearProfileReference() throws Exception {
+        Path profileFile = tempDir.resolve("profiles.json");
+        Path cvDir = tempDir.resolve("storage/cv");
+        CvService service = new CvService(new ProfileRepository(profileFile), cvDir);
+        User user = new User("ta-7", "gina", "", Role.TA, "gina@example.com");
+
+        CvUploadResult uploadResult = service.uploadCv(
+                user,
+                "gina.pdf",
+                128,
+                new ByteArrayInputStream("resume".getBytes(StandardCharsets.UTF_8))
+        );
+        assertTrue(uploadResult.isSuccess());
+
+        Path storedFile = cvDir.resolve(uploadResult.getStoredFileName());
+        assertTrue(Files.exists(storedFile));
+
+        boolean deleted = service.deleteCv(user);
+
+        assertTrue(deleted);
+        assertFalse(Files.exists(storedFile));
+        assertFalse(service.getOrCreateProfile(user).hasCv());
+    }
+
+    @Test
+    void deleteCvShouldReturnFalseWhenNoCurrentCvExists() {
+        CvService service = new CvService(
+                new ProfileRepository(tempDir.resolve("profiles.json")),
+                tempDir.resolve("storage/cv")
+        );
+        User user = new User("ta-8", "henry", "", Role.TA, "henry@example.com");
+
+        assertFalse(service.deleteCv(user));
     }
 }

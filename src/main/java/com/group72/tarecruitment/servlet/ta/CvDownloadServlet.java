@@ -26,9 +26,9 @@ public class CvDownloadServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         Profile profile = cvService.getOrCreateProfile(currentUser);
-        Optional<Path> cvFile = cvService.resolveStoredCv(profile);
+        Optional<byte[]> cvBytes = cvService.readStoredCvBytes(profile);
 
-        if (cvFile.isEmpty()) {
+        if (cvBytes.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "No uploaded CV is available for download.");
             return;
         }
@@ -37,8 +37,7 @@ public class CvDownloadServlet extends HttpServlet {
         response.setContentType(cvService.getContentType(downloadFileName));
         response.setHeader("Content-Disposition", "attachment; filename=\"" + downloadFileName + "\"");
         response.setHeader("X-Content-Type-Options", "nosniff");
-        response.setContentLengthLong(Files.size(cvFile.get()));
-
-        Files.copy(cvFile.get(), response.getOutputStream());
+        response.setContentLengthLong(cvBytes.get().length);
+        response.getOutputStream().write(cvBytes.get());
     }
 }

@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class ProfileRepository extends JsonRepository<Profile> {
     public ProfileRepository() {
-        this(new JsonFileStore(), AppConfig.resolveDataFile("profiles.json"));
+        this(new JsonFileStore(true), AppConfig.resolveDataFile("profiles.json"));
     }
 
     public ProfileRepository(Path filePath) {
-        this(new JsonFileStore(), filePath);
+        this(new JsonFileStore(true), filePath);
     }
 
     protected ProfileRepository(JsonFileStore fileStore, Path filePath) {

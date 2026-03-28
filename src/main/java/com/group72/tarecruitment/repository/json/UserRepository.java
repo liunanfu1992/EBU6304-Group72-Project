@@ -10,11 +10,11 @@ import java.util.Optional;
 
 public class UserRepository extends JsonRepository<User> {
     public UserRepository() {
-        this(new JsonFileStore(), AppConfig.resolveDataFile("users.json"));
+        this(new JsonFileStore(true), AppConfig.resolveDataFile("users.json"));
     }
 
     public UserRepository(Path filePath) {
-        this(new JsonFileStore(), filePath);
+        this(new JsonFileStore(true), filePath);
     }
 
     protected UserRepository(JsonFileStore fileStore, Path filePath) {

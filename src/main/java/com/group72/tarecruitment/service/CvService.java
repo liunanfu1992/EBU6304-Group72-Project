@@ -69,6 +69,24 @@ public class CvService {
         }
     }
 
+    public boolean deleteCv(User user) {
+        Profile profile = getOrCreateProfile(user);
+        if (!profile.hasCv()) {
+            return false;
+        }
+
+        String storedCvPath = profile.getCvPath();
+        try {
+            deleteStoredCvFile(storedCvPath);
+        } catch (IOException exception) {
+            return false;
+        }
+
+        profile.setCvPath(null);
+        profileRepository.save(profile);
+        return true;
+    }
+
     public String getAllowedExtensionsDisplay() {
         StringJoiner joiner = new StringJoiner(", ");
         for (String extension : ALLOWED_EXTENSIONS) {
@@ -138,7 +156,15 @@ public class CvService {
             return;
         }
 
-        Path existingFile = cvStorageDir.resolve(profile.getCvPath()).normalize();
+        deleteStoredCvFile(profile.getCvPath());
+    }
+
+    private void deleteStoredCvFile(String storedCvPath) throws IOException {
+        if (isBlank(storedCvPath)) {
+            return;
+        }
+
+        Path existingFile = cvStorageDir.resolve(storedCvPath).normalize();
         if (existingFile.startsWith(cvStorageDir.normalize())) {
             Files.deleteIfExists(existingFile);
         }

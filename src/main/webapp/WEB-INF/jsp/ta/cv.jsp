@@ -9,6 +9,14 @@
         <div class="success">CV uploaded successfully.</div>
     </c:if>
 
+    <c:if test="${param.deleted eq '1'}">
+        <div class="success">Current CV deleted successfully.</div>
+    </c:if>
+
+    <c:if test="${param.notFound eq '1'}">
+        <div class="info">No current CV was found to delete.</div>
+    </c:if>
+
     <c:if test="${not empty errors}">
         <div class="error">
             <strong>Please fix the following:</strong>
@@ -31,6 +39,10 @@
             <p class="helper">Uploading a new file will replace the current CV reference in your profile.</p>
             <div class="actions-row">
                 <a class="button-secondary" href="${pageContext.request.contextPath}/ta/cv/download">Download Current CV</a>
+                <form class="inline-form" method="post" action="${pageContext.request.contextPath}/ta/cv" data-confirm="Delete your current CV from the system?">
+                    <input type="hidden" name="action" value="delete">
+                    <button class="button-warning" type="submit">Delete Current CV</button>
+                </form>
             </div>
             <p class="helper">The system currently supports secure upload and download. In-system preview can be added later.</p>
         </c:when>

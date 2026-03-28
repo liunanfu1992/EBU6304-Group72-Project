@@ -36,6 +36,14 @@ public class CvServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
+        String action = request.getParameter("action");
+
+        if ("delete".equals(action)) {
+            boolean deleted = cvService.deleteCv(currentUser);
+            response.sendRedirect(request.getContextPath() + "/ta/cv" + (deleted ? "?deleted=1" : "?notFound=1"));
+            return;
+        }
+
         Part cvPart = request.getPart("cvFile");
 
         try (InputStream inputStream = cvPart == null ? InputStream.nullInputStream() : cvPart.getInputStream()) {

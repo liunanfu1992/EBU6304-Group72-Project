@@ -1,8 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../common/header.jspf" %>
 <div class="card">
-    <h2>Available Jobs</h2>
-    <p class="muted">Browse current TA openings and preview the predefined-skill match against your profile.</p>
+    <span class="eyebrow">Job Match</span>
+    <h2 class="card-title">Available Jobs</h2>
+    <p class="card-subtitle">Browse current TA openings and preview the predefined-skill match against your profile.</p>
 
     <c:choose>
         <c:when test="${empty profile.selectedSkills}">
@@ -73,6 +74,10 @@
                         </c:if>
 
                         <p class="helper">Match score only considers predefined skills shared by TA profiles and job postings in Sprint 1.</p>
+                        <div class="actions-row">
+                            <a class="button-secondary" href="${pageContext.request.contextPath}/ta/profile">Refine My Skills</a>
+                            <a class="button-secondary" href="${pageContext.request.contextPath}/ta/cv">Update My CV</a>
+                        </div>
                     </div>
                 </c:forEach>
             </div>

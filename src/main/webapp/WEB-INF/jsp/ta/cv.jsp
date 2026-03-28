@@ -1,8 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ include file="../common/header.jspf" %>
 <div class="card">
-    <h2>CV Upload</h2>
-    <p class="muted">Upload or replace your CV with basic file validation and secure storage rules.</p>
+    <span class="eyebrow">CV Center</span>
+    <h2 class="card-title">CV Upload</h2>
+    <p class="card-subtitle">Upload or replace your CV with basic file validation and secure storage rules.</p>
 
     <c:if test="${param.uploaded eq '1'}">
         <div class="success">CV uploaded successfully.</div>
@@ -40,9 +41,12 @@
 
     <form method="post" action="${pageContext.request.contextPath}/ta/cv" enctype="multipart/form-data">
         <label for="cvFile">Choose CV File</label>
-        <input id="cvFile" name="cvFile" type="file" accept=".pdf,.doc,.docx" required>
+        <input id="cvFile" name="cvFile" type="file" accept=".pdf,.doc,.docx" required data-file-input data-file-target="cv-file-meta">
+        <div id="cv-file-meta" class="file-meta">No file selected yet.</div>
 
-        <button type="submit">Upload CV</button>
+        <div class="actions-row">
+            <button type="submit">Upload CV</button>
+        </div>
     </form>
 </div>
 <%@ include file="../common/footer.jspf" %>

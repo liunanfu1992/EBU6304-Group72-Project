@@ -31,6 +31,12 @@ public class UserRepository extends JsonRepository<User> {
                 .findFirst();
     }
 
+    public Optional<User> findById(String userId) {
+        return findAllInternal().stream()
+                .filter(user -> user.getId() != null && user.getId().equals(userId))
+                .findFirst();
+    }
+
     public void save(User user) {
         List<User> users = findAllInternal();
         Optional<User> existing = users.stream()

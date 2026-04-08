@@ -5,8 +5,11 @@ import com.group72.tarecruitment.model.JobCandidateView;
 import com.group72.tarecruitment.model.JobCreateResult;
 import com.group72.tarecruitment.model.JobMatchView;
 import com.group72.tarecruitment.model.Profile;
+import com.group72.tarecruitment.model.TaJobView;
+import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
+import com.group72.tarecruitment.repository.json.UserRepository;
 import com.group72.tarecruitment.util.FormUtils;
 import com.group72.tarecruitment.util.SkillCatalog;
 import java.util.ArrayList;
@@ -19,14 +22,20 @@ import java.util.stream.Collectors;
 public class JobService {
     private final JobRepository jobRepository;
     private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
 
     public JobService(JobRepository jobRepository) {
-        this(jobRepository, new ProfileRepository());
+        this(jobRepository, new ProfileRepository(), null);
     }
 
     public JobService(JobRepository jobRepository, ProfileRepository profileRepository) {
+        this(jobRepository, profileRepository, null);
+    }
+
+    public JobService(JobRepository jobRepository, ProfileRepository profileRepository, UserRepository userRepository) {
         this.jobRepository = jobRepository;
         this.profileRepository = profileRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Job> listAllOpenJobs() {
@@ -46,6 +55,33 @@ public class JobService {
                         .comparingInt(JobMatchView::getMatchPercent).reversed()
                         .thenComparing(match -> match.getJob().getTitle(), String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
+    }
+
+    public List<TaJobView> listTaJobViews(Profile profile) {
+        List<String> profileSkills = profile == null
+                ? List.of()
+                : SkillCatalog.extractPredefinedSkills(profile.getSelectedSkills());
+
+        return listAllOpenJobs().stream()
+                .map(job -> toTaJobView(job, profileSkills))
+                .sorted(Comparator
+                        .comparingInt(TaJobView::getMatchPercent).reversed()
+                        .thenComparing(jobView -> jobView.getJob().getTitle(), String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    public Optional<TaJobView> findTaJobView(String jobId, Profile profile) {
+        if (jobId == null || jobId.isBlank()) {
+            return Optional.empty();
+        }
+
+        List<String> profileSkills = profile == null
+                ? List.of()
+                : SkillCatalog.extractPredefinedSkills(profile.getSelectedSkills());
+
+        return jobRepository.findById(jobId)
+                .filter(Job::isOpen)
+                .map(job -> toTaJobView(job, profileSkills));
     }
 
     public List<String> getAvailableSkills() {
@@ -271,6 +307,22 @@ public class JobService {
 
         int matchPercent = requiredSkills.isEmpty() ? 100 : matchedSkills.size() * 100 / requiredSkills.size();
         return new JobCandidateView(profile, matchedSkills, missingSkills, matchPercent);
+    }
+
+    private TaJobView toTaJobView(Job job, List<String> profileSkills) {
+        JobMatchView matchView = toMatchView(job, profileSkills);
+        Optional<User> moduleOwner = userRepository == null
+                ? Optional.empty()
+                : userRepository.findById(job.getMoUserId());
+        String moduleOwnerDisplayName = moduleOwner
+                .map(User::getUsername)
+                .filter(value -> !isBlank(value))
+                .orElseGet(() -> isBlank(job.getMoUserId()) ? "Module owner unavailable" : job.getMoUserId());
+        String moduleOwnerEmail = moduleOwner
+                .map(User::getEmail)
+                .filter(value -> !isBlank(value))
+                .orElse("");
+        return new TaJobView(matchView, moduleOwnerDisplayName, moduleOwnerEmail);
     }
 
     private boolean isCandidateProfileReady(Profile profile) {

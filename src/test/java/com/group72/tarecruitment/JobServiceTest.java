@@ -9,8 +9,12 @@ import com.group72.tarecruitment.model.JobCreateResult;
 import com.group72.tarecruitment.model.JobCandidateView;
 import com.group72.tarecruitment.model.JobMatchView;
 import com.group72.tarecruitment.model.Profile;
+import com.group72.tarecruitment.model.Role;
+import com.group72.tarecruitment.model.TaJobView;
+import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
+import com.group72.tarecruitment.repository.json.UserRepository;
 import com.group72.tarecruitment.service.JobService;
 import java.nio.file.Path;
 import java.util.List;
@@ -299,5 +303,79 @@ class JobServiceTest {
                 List.of("Draft Ready Job"),
                 service.listAllOpenJobs().stream().map(Job::getTitle).toList()
         );
+    }
+
+    @Test
+    void taJobViewsShouldExposeModuleOwnerDisplayNameForOpenJobs() {
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles.json"));
+        UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
+        JobService service = new JobService(jobRepository, profileRepository, userRepository);
+
+        userRepository.save(new User("mo-1", "dr-smith", "", Role.MO, "smith@example.com"));
+
+        assertTrue(service.createJob(
+                "Programming TA",
+                "CS101",
+                "Support labs",
+                new String[]{"Java", "Communication"},
+                "",
+                "8",
+                "mo-1"
+        ).isSuccess());
+        assertTrue(service.createDraft(
+                "Hidden Draft",
+                "CS102",
+                "Should not appear",
+                new String[]{"Java"},
+                "",
+                "6",
+                "mo-1"
+        ).isSuccess());
+
+        Profile profile = new Profile();
+        profile.setSelectedSkills(List.of("Java", "Communication"));
+
+        List<TaJobView> jobViews = service.listTaJobViews(profile);
+
+        assertEquals(1, jobViews.size());
+        assertEquals("Programming TA", jobViews.get(0).getJob().getTitle());
+        assertEquals("dr-smith", jobViews.get(0).getModuleOwnerDisplayName());
+        assertEquals("smith@example.com", jobViews.get(0).getModuleOwnerEmail());
+    }
+
+    @Test
+    void findTaJobViewShouldReturnOnlyOpenJobs() {
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles.json"));
+        UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
+        JobService service = new JobService(jobRepository, profileRepository, userRepository);
+
+        userRepository.save(new User("mo-1", "mo-demo", "", Role.MO, "mo@example.com"));
+
+        JobCreateResult openJob = service.createJob(
+                "Visible Job",
+                "CS201",
+                "Visible to TAs",
+                new String[]{"Java"},
+                "",
+                "6",
+                "mo-1"
+        );
+        JobCreateResult draftJob = service.createDraft(
+                "Draft Job",
+                "CS202",
+                "Still private",
+                new String[]{"Python"},
+                "",
+                "5",
+                "mo-1"
+        );
+
+        Profile profile = new Profile();
+        profile.setSelectedSkills(List.of("Java"));
+
+        assertTrue(service.findTaJobView(openJob.getJob().getId(), profile).isPresent());
+        assertTrue(service.findTaJobView(draftJob.getJob().getId(), profile).isEmpty());
     }
 }

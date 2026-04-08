@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.group72.tarecruitment.model.Job;
 import com.group72.tarecruitment.model.JobCreateResult;
 import com.group72.tarecruitment.model.JobCandidateView;
 import com.group72.tarecruitment.model.JobMatchView;
@@ -219,5 +220,84 @@ class JobServiceTest {
         assertEquals(List.of("Algorithms"), candidates.get(1).getMissingSkills());
         assertEquals("Carol", candidates.get(2).getDisplayName());
         assertEquals(0, candidates.get(2).getMatchPercent());
+    }
+
+    @Test
+    void draftJobsShouldBeSavedWithoutFullValidationAndHiddenFromTaListings() {
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs.json")),
+                new ProfileRepository(tempDir.resolve("profiles.json"))
+        );
+
+        JobCreateResult draftResult = service.createDraft(
+                "",
+                "",
+                "",
+                null,
+                "",
+                "",
+                "mo-1"
+        );
+
+        assertTrue(draftResult.isSuccess());
+        assertTrue(draftResult.getJob().isDraft());
+        assertTrue(service.listAllOpenJobs().isEmpty());
+        assertEquals(
+                List.of(Job.STATUS_DRAFT),
+                service.listJobsByMoUser("mo-1").stream().map(Job::getStatus).toList()
+        );
+    }
+
+    @Test
+    void publishingDraftShouldRequireCompleteFieldsBeforeBecomingOpen() {
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs.json")),
+                new ProfileRepository(tempDir.resolve("profiles.json"))
+        );
+
+        JobCreateResult draftResult = service.createDraft(
+                "",
+                "",
+                "",
+                null,
+                "",
+                "",
+                "mo-1"
+        );
+
+        assertTrue(draftResult.isSuccess());
+
+        JobCreateResult invalidPublishResult = service.publishJob(
+                draftResult.getJob().getId(),
+                "",
+                "",
+                "",
+                null,
+                "",
+                "",
+                "mo-1"
+        );
+
+        assertFalse(invalidPublishResult.isSuccess());
+        assertTrue(invalidPublishResult.getErrors().contains("Title is required."));
+        assertTrue(service.listAllOpenJobs().isEmpty());
+
+        JobCreateResult publishResult = service.publishJob(
+                draftResult.getJob().getId(),
+                "Draft Ready Job",
+                "CS555",
+                "Now complete and ready to publish",
+                new String[]{"Java", "Communication"},
+                "",
+                "6",
+                "mo-1"
+        );
+
+        assertTrue(publishResult.isSuccess());
+        assertTrue(publishResult.getJob().isOpen());
+        assertEquals(
+                List.of("Draft Ready Job"),
+                service.listAllOpenJobs().stream().map(Job::getTitle).toList()
+        );
     }
 }

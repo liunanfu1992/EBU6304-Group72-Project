@@ -31,7 +31,7 @@ public class JobService {
 
     public List<Job> listAllOpenJobs() {
         return jobRepository.findAll().stream()
-                .filter(job -> job.getStatus() == null || !"CLOSED".equalsIgnoreCase(job.getStatus()))
+                .filter(Job::isOpen)
                 .collect(Collectors.toList());
     }
 
@@ -56,7 +56,7 @@ public class JobService {
         return jobRepository.findAll().stream()
                 .filter(job -> moUserId != null && moUserId.equals(job.getMoUserId()))
                 .sorted(Comparator
-                        .comparing(Job::isClosed)
+                        .comparingInt(this::statusRank)
                         .thenComparing(Job::getTitle, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
@@ -157,8 +157,52 @@ public class JobService {
     public JobCreateResult createJob(String title, String moduleCode, String description, String[] selectedSkills,
                                      String customSkillsInput, String weeklyHours, String moUserId) {
         Job job = buildDraftJob(null, title, moduleCode, description, selectedSkills, customSkillsInput,
-                weeklyHours, moUserId, "OPEN");
+                weeklyHours, moUserId, Job.STATUS_OPEN);
         return validateAndSaveJob(job, weeklyHours);
+    }
+
+    public JobCreateResult createDraft(String title, String moduleCode, String description, String[] selectedSkills,
+                                       String customSkillsInput, String weeklyHours, String moUserId) {
+        Job job = buildDraftJob(null, title, moduleCode, description, selectedSkills, customSkillsInput,
+                weeklyHours, moUserId, Job.STATUS_DRAFT);
+        jobRepository.save(job);
+        return new JobCreateResult(true, job, List.of());
+    }
+
+    public JobCreateResult saveDraft(String jobId, String title, String moduleCode, String description,
+                                     String[] selectedSkills, String customSkillsInput, String weeklyHours,
+                                     String moUserId) {
+        Optional<Job> existingJob = findOwnedJob(jobId, moUserId);
+        if (existingJob.isEmpty()) {
+            return new JobCreateResult(false, buildDraftJob(jobId, title, moduleCode, description, selectedSkills,
+                    customSkillsInput, weeklyHours, moUserId, Job.STATUS_DRAFT), List.of("Job not found."));
+        }
+
+        Job draftJob = buildDraftJob(existingJob.get().getId(), title, moduleCode, description, selectedSkills,
+                customSkillsInput, weeklyHours, moUserId, Job.STATUS_DRAFT);
+        jobRepository.save(draftJob);
+        return new JobCreateResult(true, draftJob, List.of());
+    }
+
+    public JobCreateResult publishJob(String jobId, String title, String moduleCode, String description,
+                                      String[] selectedSkills, String customSkillsInput, String weeklyHours,
+                                      String moUserId) {
+        Optional<Job> existingJob = findOwnedJob(jobId, moUserId);
+        if (existingJob.isEmpty()) {
+            return new JobCreateResult(false, buildDraftJob(jobId, title, moduleCode, description, selectedSkills,
+                    customSkillsInput, weeklyHours, moUserId, Job.STATUS_OPEN), List.of("Job not found."));
+        }
+
+        Job job = buildDraftJob(existingJob.get().getId(), title, moduleCode, description, selectedSkills,
+                customSkillsInput, weeklyHours, moUserId, Job.STATUS_OPEN);
+        List<String> errors = validateJob(job, weeklyHours);
+        if (!errors.isEmpty()) {
+            job.setStatus(Job.STATUS_DRAFT);
+            return new JobCreateResult(false, job, errors);
+        }
+
+        jobRepository.save(job);
+        return new JobCreateResult(true, job, List.of());
     }
 
     private JobCreateResult validateAndSaveJob(Job job, String weeklyHoursInput) {
@@ -190,7 +234,7 @@ public class JobService {
                 SkillCatalog.mergeSkills(normalizedSelectedSkills, normalizedCustomSkills),
                 parseWeeklyHours(weeklyHours),
                 moUserId,
-                normalizeStatus(status) == null ? "OPEN" : normalizeStatus(status)
+                normalizeStatus(status) == null ? Job.STATUS_OPEN : normalizeStatus(status)
         );
     }
 
@@ -275,12 +319,25 @@ public class JobService {
         }
 
         if ("OPEN".equalsIgnoreCase(status.trim())) {
-            return "OPEN";
+            return Job.STATUS_OPEN;
         }
         if ("CLOSED".equalsIgnoreCase(status.trim())) {
-            return "CLOSED";
+            return Job.STATUS_CLOSED;
+        }
+        if ("DRAFT".equalsIgnoreCase(status.trim())) {
+            return Job.STATUS_DRAFT;
         }
         return null;
+    }
+
+    private int statusRank(Job job) {
+        if (job == null || job.isDraft()) {
+            return 0;
+        }
+        if (job.isOpen()) {
+            return 1;
+        }
+        return 2;
     }
 
     private String safeTrim(String value) {

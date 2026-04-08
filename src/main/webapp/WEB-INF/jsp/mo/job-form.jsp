@@ -9,6 +9,14 @@
         <div class="success">Job created successfully.</div>
     </c:if>
 
+    <c:if test="${param.draftSaved eq '1'}">
+        <div class="success">Draft saved successfully. This job remains hidden from TA users until you publish it.</div>
+    </c:if>
+
+    <c:if test="${not empty jobDraft and jobDraft.draft}">
+        <div class="info">Draft jobs can be saved with incomplete fields in Sprint 1, but publishing still requires all required fields.</div>
+    </c:if>
+
     <c:if test="${param.updated eq '1'}">
         <div class="success">Job updated successfully.</div>
     </c:if>
@@ -80,7 +88,8 @@
         <p class="helper">Predefined skills will be used directly by the TA-side matching preview. Custom skills are displayed, but not scored in Sprint 1.</p>
 
         <div class="actions-row">
-            <button type="submit">${submitLabel}</button>
+            <button class="button-primary" type="submit" name="submitAction" value="${primaryActionValue}">${primarySubmitLabel}</button>
+            <button class="button-secondary" type="submit" name="submitAction" value="saveDraft" formnovalidate>Save as Draft</button>
             <a class="button-secondary" href="${cancelPath}">Cancel</a>
         </div>
     </form>

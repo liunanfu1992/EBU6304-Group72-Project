@@ -8,6 +8,10 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
+    public static final String STATUS_DRAFT = "DRAFT";
+    public static final String STATUS_OPEN = "OPEN";
+    public static final String STATUS_CLOSED = "CLOSED";
+
     private String id;
     private String title;
     private String moduleCode;
@@ -100,12 +104,17 @@ public class Job {
 
     @JsonIgnore
     public boolean isOpen() {
-        return status == null || !"CLOSED".equalsIgnoreCase(status);
+        return status == null || STATUS_OPEN.equalsIgnoreCase(status);
     }
 
     @JsonIgnore
     public boolean isClosed() {
-        return !isOpen();
+        return STATUS_CLOSED.equalsIgnoreCase(status);
+    }
+
+    @JsonIgnore
+    public boolean isDraft() {
+        return STATUS_DRAFT.equalsIgnoreCase(status);
     }
 
     @JsonIgnore

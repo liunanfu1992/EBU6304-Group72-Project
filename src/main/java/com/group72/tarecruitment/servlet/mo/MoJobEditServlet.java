@@ -44,23 +44,58 @@ public class MoJobEditServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         String jobId = request.getParameter("jobId");
+        String submitAction = request.getParameter("submitAction");
 
-        JobCreateResult result = jobService.updateJob(
-                jobId,
-                request.getParameter("title"),
-                request.getParameter("moduleCode"),
-                request.getParameter("description"),
-                request.getParameterValues("selectedSkills"),
-                request.getParameter("customSkills"),
-                request.getParameter("weeklyHours"),
-                currentUser.getId()
-        );
+        JobCreateResult result;
+        if ("saveDraft".equalsIgnoreCase(submitAction)) {
+            result = jobService.saveDraft(
+                    jobId,
+                    request.getParameter("title"),
+                    request.getParameter("moduleCode"),
+                    request.getParameter("description"),
+                    request.getParameterValues("selectedSkills"),
+                    request.getParameter("customSkills"),
+                    request.getParameter("weeklyHours"),
+                    currentUser.getId()
+            );
+        } else if ("publish".equalsIgnoreCase(submitAction)) {
+            result = jobService.publishJob(
+                    jobId,
+                    request.getParameter("title"),
+                    request.getParameter("moduleCode"),
+                    request.getParameter("description"),
+                    request.getParameterValues("selectedSkills"),
+                    request.getParameter("customSkills"),
+                    request.getParameter("weeklyHours"),
+                    currentUser.getId()
+            );
+        } else {
+            result = jobService.updateJob(
+                    jobId,
+                    request.getParameter("title"),
+                    request.getParameter("moduleCode"),
+                    request.getParameter("description"),
+                    request.getParameterValues("selectedSkills"),
+                    request.getParameter("customSkills"),
+                    request.getParameter("weeklyHours"),
+                    currentUser.getId()
+            );
+        }
 
         if (!result.isSuccess()) {
             request.setAttribute("jobDraft", result.getJob());
             request.setAttribute("errors", result.getErrors());
             populateFormAttributes(request, result.getJob());
             request.getRequestDispatcher(ViewPaths.MO_JOB_FORM).forward(request, response);
+            return;
+        }
+
+        if ("saveDraft".equalsIgnoreCase(submitAction)) {
+            response.sendRedirect(request.getContextPath() + "/mo/jobs/edit?jobId=" + result.getJob().getId() + "&draftSaved=1");
+            return;
+        }
+        if ("publish".equalsIgnoreCase(submitAction)) {
+            response.sendRedirect(request.getContextPath() + "/mo/jobs/view?jobId=" + result.getJob().getId() + "&published=1");
             return;
         }
 
@@ -71,10 +106,13 @@ public class MoJobEditServlet extends HttpServlet {
         request.setAttribute("jobDraft", job);
         request.setAttribute("availableSkills", jobService.getAvailableSkills());
         request.setAttribute("selectedSkillMap", toSkillSelectionMap(job.getPredefinedRequiredSkills()));
-        request.setAttribute("pageTitle", "Edit Job Listing");
-        request.setAttribute("pageDescription", "Update the job details and shared skill requirements for this posting.");
+        request.setAttribute("pageTitle", job.isDraft() ? "Edit Draft Job" : "Edit Job Listing");
+        request.setAttribute("pageDescription", job.isDraft()
+                ? "Draft jobs stay hidden from TA users until you publish them."
+                : "Update the job details and shared skill requirements for this posting.");
         request.setAttribute("formAction", request.getContextPath() + "/mo/jobs/edit");
-        request.setAttribute("submitLabel", "Save Changes");
+        request.setAttribute("primarySubmitLabel", job.isDraft() ? "Publish Job" : "Save Changes");
+        request.setAttribute("primaryActionValue", job.isDraft() ? "publish" : "update");
         request.setAttribute("cancelPath", request.getContextPath() + "/mo/jobs/view?jobId=" + job.getId());
     }
 

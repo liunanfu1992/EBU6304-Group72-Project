@@ -33,15 +33,27 @@ public class JobCreateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
-        JobCreateResult result = jobService.createJob(
-                request.getParameter("title"),
-                request.getParameter("moduleCode"),
-                request.getParameter("description"),
-                request.getParameterValues("selectedSkills"),
-                request.getParameter("customSkills"),
-                request.getParameter("weeklyHours"),
-                currentUser.getId()
-        );
+        String submitAction = request.getParameter("submitAction");
+        boolean saveDraft = "saveDraft".equalsIgnoreCase(submitAction);
+        JobCreateResult result = saveDraft
+                ? jobService.createDraft(
+                        request.getParameter("title"),
+                        request.getParameter("moduleCode"),
+                        request.getParameter("description"),
+                        request.getParameterValues("selectedSkills"),
+                        request.getParameter("customSkills"),
+                        request.getParameter("weeklyHours"),
+                        currentUser.getId()
+                )
+                : jobService.createJob(
+                        request.getParameter("title"),
+                        request.getParameter("moduleCode"),
+                        request.getParameter("description"),
+                        request.getParameterValues("selectedSkills"),
+                        request.getParameter("customSkills"),
+                        request.getParameter("weeklyHours"),
+                        currentUser.getId()
+                );
 
         if (!result.isSuccess()) {
             request.setAttribute("jobDraft", result.getJob());
@@ -52,6 +64,11 @@ public class JobCreateServlet extends HttpServlet {
             return;
         }
 
+        if (saveDraft) {
+            response.sendRedirect(request.getContextPath() + "/mo/jobs/edit?jobId=" + result.getJob().getId() + "&draftSaved=1");
+            return;
+        }
+
         response.sendRedirect(request.getContextPath() + "/mo/jobs/new?created=1");
     }
 
@@ -59,9 +76,10 @@ public class JobCreateServlet extends HttpServlet {
         request.setAttribute("availableSkills", jobService.getAvailableSkills());
         request.setAttribute("selectedSkillMap", Map.of());
         request.setAttribute("pageTitle", "Create Job Listing");
-        request.setAttribute("pageDescription", "Use the shared predefined skill vocabulary so TA-side matching stays consistent.");
+        request.setAttribute("pageDescription", "Publish a complete job now, or save a draft and finish it later without exposing it to TA users.");
         request.setAttribute("formAction", request.getContextPath() + "/mo/jobs/new");
-        request.setAttribute("submitLabel", "Create Job");
+        request.setAttribute("primarySubmitLabel", "Publish Job");
+        request.setAttribute("primaryActionValue", "publish");
         request.setAttribute("cancelPath", request.getContextPath() + "/mo/dashboard");
     }
 

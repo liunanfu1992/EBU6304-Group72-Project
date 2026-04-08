@@ -5,6 +5,10 @@
     <h2 class="card-title">Available Jobs</h2>
     <p class="card-subtitle">Browse current TA openings and preview the predefined-skill match against your profile.</p>
 
+    <c:if test="${param.notFound eq '1'}">
+        <div class="error">The requested job is no longer available for browsing.</div>
+    </c:if>
+
     <c:choose>
         <c:when test="${empty profile.selectedSkills}">
             <div class="warning">
@@ -36,6 +40,12 @@
                             <div>
                                 <h3>${match.job.title}</h3>
                                 <p class="muted">${match.job.moduleCode} | ${match.job.weeklyHours} hours/week</p>
+                                <p class="helper">
+                                    Module Owner: ${match.moduleOwnerDisplayName}
+                                    <c:if test="${not empty match.moduleOwnerEmail}">
+                                        | ${match.moduleOwnerEmail}
+                                    </c:if>
+                                </p>
                             </div>
                             <span class="match-badge match-${match.matchTone}">${match.matchLabel} (${match.matchPercent}%)</span>
                         </div>
@@ -75,12 +85,25 @@
 
                         <p class="helper">Match score only considers predefined skills shared by TA profiles and job postings in Sprint 1.</p>
                         <div class="actions-row">
+                            <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs/view?jobId=${match.job.id}">View Details</a>
                             <a class="button-secondary" href="${pageContext.request.contextPath}/ta/profile">Refine My Skills</a>
                             <a class="button-secondary" href="${pageContext.request.contextPath}/ta/cv">Update My CV</a>
                         </div>
                     </div>
                 </c:forEach>
             </div>
+
+            <c:if test="${totalPages gt 1}">
+                <div class="actions-row">
+                    <c:if test="${hasPreviousPage}">
+                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${previousPage}">Previous Page</a>
+                    </c:if>
+                    <span class="selected-counter">Page ${currentPage} of ${totalPages}</span>
+                    <c:if test="${hasNextPage}">
+                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${nextPage}">Next Page</a>
+                    </c:if>
+                </div>
+            </c:if>
         </c:otherwise>
     </c:choose>
 </div>

@@ -14,5 +14,9 @@
         <strong>Manage My Jobs</strong>
         <span>Edit, close, reopen, and inspect candidate previews for jobs you own.</span>
     </a>
+    <a class="dashboard-link-card" href="${pageContext.request.contextPath}/mo/applications">
+        <strong>Review Applications</strong>
+        <span>Open the Sprint 2 review workspace for applicants across your posted jobs.</span>
+    </a>
 </div>
 <%@ include file="../common/footer.jspf" %>

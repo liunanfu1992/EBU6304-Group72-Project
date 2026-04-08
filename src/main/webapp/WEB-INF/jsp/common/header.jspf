@@ -460,6 +460,22 @@
             background: var(--error-bg);
             color: var(--error-ink);
         }
+        .status-pending {
+            background: var(--warning-bg);
+            color: var(--warning-ink);
+        }
+        .status-shortlisted {
+            background: var(--info-bg);
+            color: var(--info-ink);
+        }
+        .status-rejected {
+            background: var(--error-bg);
+            color: var(--error-ink);
+        }
+        .status-withdrawn {
+            background: rgba(117, 127, 154, 0.14);
+            color: #475569;
+        }
         .candidate-grid {
             display: grid;
             gap: 16px;
@@ -516,10 +532,12 @@
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/profile">Profile</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/cv">CV</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/jobs">Jobs</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ta/applications">Applications</a>
                     </c:when>
                     <c:when test="${sessionScope.currentUser.role == 'MO'}">
                         <a class="nav-link" href="${pageContext.request.contextPath}/mo/jobs">My Jobs</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/mo/jobs/new">Post Job</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/mo/applications">Applications</a>
                     </c:when>
                     <c:otherwise>
                         <a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard">Admin</a>

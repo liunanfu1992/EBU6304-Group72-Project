@@ -18,5 +18,9 @@
         <strong>Browse Available Jobs</strong>
         <span>See the current TA openings and your predefined-skill fit at a glance.</span>
     </a>
+    <a class="dashboard-link-card" href="${pageContext.request.contextPath}/ta/applications">
+        <strong>Track My Applications</strong>
+        <span>Review submitted applications and follow the shared Sprint 2 application lifecycle.</span>
+    </a>
 </div>
 <%@ include file="../common/footer.jspf" %>

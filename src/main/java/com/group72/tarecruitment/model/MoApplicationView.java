@@ -96,4 +96,20 @@ public class MoApplicationView {
         Long createdAt = application == null ? null : application.getCreatedAtEpochMillis();
         return createdAt == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createdAt));
     }
+
+    public boolean isReviewLocked() {
+        return application == null || application.isWithdrawn();
+    }
+
+    public boolean getCanShortlist() {
+        return application != null && !application.isWithdrawn() && !application.isShortlisted();
+    }
+
+    public boolean getCanReject() {
+        return application != null && !application.isWithdrawn() && !application.isRejected();
+    }
+
+    public boolean isJobClosed() {
+        return job != null && job.isClosed();
+    }
 }

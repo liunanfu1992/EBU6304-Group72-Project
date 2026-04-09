@@ -72,7 +72,10 @@ public class JobService {
     }
 
     public List<TaJobView> listTaJobViews(Profile profile, String keyword, List<String> selectedFilterSkills) {
+        String normalizedKeyword = safeTrim(keyword);
+
         return listTaJobViews(profile).stream()
+                .filter(jobView -> matchesKeyword(jobView, normalizedKeyword))
                 .collect(Collectors.toList());
     }
 
@@ -329,6 +332,26 @@ public class JobService {
                 .filter(value -> !isBlank(value))
                 .orElse("");
         return new TaJobView(matchView, moduleOwnerDisplayName, moduleOwnerEmail);
+    }
+
+    private boolean matchesKeyword(TaJobView jobView, String keyword) {
+        if (isBlank(keyword)) {
+            return true;
+        }
+
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<String> fields = new ArrayList<>();
+        fields.add(jobView.getJob().getTitle());
+        fields.add(jobView.getJob().getModuleCode());
+        fields.add(jobView.getJob().getDescription());
+        fields.add(jobView.getModuleOwnerDisplayName());
+        fields.add(jobView.getModuleOwnerEmail());
+        fields.addAll(jobView.getJob().getRequiredSkills());
+
+        return fields.stream()
+                .filter(value -> !isBlank(value))
+                .map(value -> value.toLowerCase(Locale.ROOT))
+                .anyMatch(value -> value.contains(normalizedKeyword));
     }
 
     private boolean isCandidateProfileReady(Profile profile) {

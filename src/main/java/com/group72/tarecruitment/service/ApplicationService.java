@@ -3,6 +3,7 @@ package com.group72.tarecruitment.service;
 import com.group72.tarecruitment.model.Application;
 import com.group72.tarecruitment.model.ApplicationActionResult;
 import com.group72.tarecruitment.model.Job;
+import com.group72.tarecruitment.model.MoApplicationFilterCriteria;
 import com.group72.tarecruitment.model.MoApplicationView;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.model.Role;
@@ -12,8 +13,10 @@ import com.group72.tarecruitment.repository.json.ApplicationRepository;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -79,10 +82,58 @@ public class ApplicationService {
                 .toList();
     }
 
+    public List<MoApplicationView> listMoApplicationViews(String moUserId, MoApplicationFilterCriteria criteria) {
+        MoApplicationFilterCriteria safeCriteria = criteria == null
+                ? new MoApplicationFilterCriteria("", "", "", List.of())
+                : criteria;
+
+        return listMoApplicationViews(moUserId).stream()
+                .filter(view -> matchesKeyword(view, safeCriteria.getKeyword()))
+                .filter(view -> matchesMajor(view, safeCriteria.getMajor()))
+                .filter(view -> matchesStatus(view, safeCriteria.getStatus()))
+                .filter(view -> matchesSelectedSkills(view, safeCriteria.getSelectedSkills()))
+                .toList();
+    }
+
     public List<MoApplicationView> listMoApplicationViewsForJob(String jobId, String moUserId) {
         return listApplicationsForJob(jobId, moUserId).stream()
                 .map(this::toMoApplicationView)
                 .toList();
+    }
+
+    public List<MoApplicationView> listMoApplicationViewsForJob(String jobId, String moUserId, MoApplicationFilterCriteria criteria) {
+        MoApplicationFilterCriteria safeCriteria = criteria == null
+                ? new MoApplicationFilterCriteria("", "", "", List.of())
+                : criteria;
+
+        return listMoApplicationViewsForJob(jobId, moUserId).stream()
+                .filter(view -> matchesKeyword(view, safeCriteria.getKeyword()))
+                .filter(view -> matchesMajor(view, safeCriteria.getMajor()))
+                .filter(view -> matchesStatus(view, safeCriteria.getStatus()))
+                .filter(view -> matchesSelectedSkills(view, safeCriteria.getSelectedSkills()))
+                .toList();
+    }
+
+    public List<String> listMoApplicationMajors(String moUserId) {
+        return listMoApplicationViews(moUserId).stream()
+                .map(MoApplicationView::getMajorDisplay)
+                .filter(value -> value != null && !value.isBlank() && !"-".equals(value))
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    public List<String> listMoApplicationSkills(String moUserId) {
+        List<String> skills = new ArrayList<>();
+        for (MoApplicationView view : listMoApplicationViews(moUserId)) {
+            for (String skill : view.getPredefinedProfileSkills()) {
+                if (!skills.contains(skill)) {
+                    skills.add(skill);
+                }
+            }
+        }
+        skills.sort(String.CASE_INSENSITIVE_ORDER);
+        return skills;
     }
 
     public Optional<Application> findTaApplication(String applicationId, String taUserId) {
@@ -210,6 +261,49 @@ public class ApplicationService {
 
     private boolean isOwnedJob(String jobId, String moUserId) {
         return findOwnedJob(jobId, moUserId).isPresent();
+    }
+
+    private boolean matchesKeyword(MoApplicationView view, String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return true;
+        }
+
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<String> fields = new ArrayList<>();
+        fields.add(view.getCandidateDisplayName());
+        fields.add(view.getCandidateEmail());
+        fields.add(view.getStudentIdDisplay());
+        fields.add(view.getMajorDisplay());
+        fields.add(view.getStatusLabel());
+        fields.add(view.getJob() == null ? "" : view.getJob().getTitle());
+        fields.add(view.getJob() == null ? "" : view.getJob().getModuleCode());
+
+        return fields.stream()
+                .filter(value -> value != null && !value.isBlank())
+                .map(value -> value.toLowerCase(Locale.ROOT))
+                .anyMatch(value -> value.contains(normalizedKeyword));
+    }
+
+    private boolean matchesMajor(MoApplicationView view, String major) {
+        if (major == null || major.isBlank()) {
+            return true;
+        }
+        return major.equalsIgnoreCase(view.getMajorDisplay());
+    }
+
+    private boolean matchesStatus(MoApplicationView view, String status) {
+        if (status == null || status.isBlank()) {
+            return true;
+        }
+        return status.equalsIgnoreCase(view.getStatusLabel());
+    }
+
+    private boolean matchesSelectedSkills(MoApplicationView view, List<String> selectedSkills) {
+        if (selectedSkills == null || selectedSkills.isEmpty()) {
+            return true;
+        }
+        List<String> candidateSkills = view.getPredefinedProfileSkills();
+        return selectedSkills.stream().allMatch(candidateSkills::contains);
     }
 
     private String normalizeReviewStatus(String status) {

@@ -1,8 +1,10 @@
 package com.group72.tarecruitment.model;
 
+import com.group72.tarecruitment.util.SkillCatalog;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class MoApplicationView {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
@@ -63,6 +65,14 @@ public class MoApplicationView {
         return profile == null || profile.getMajor() == null || profile.getMajor().isBlank()
                 ? "-"
                 : profile.getMajor();
+    }
+
+    public List<String> getProfileSkills() {
+        return profile == null ? List.of() : profile.getAllSkills();
+    }
+
+    public List<String> getPredefinedProfileSkills() {
+        return SkillCatalog.extractPredefinedSkills(getProfileSkills());
     }
 
     public boolean hasCv() {

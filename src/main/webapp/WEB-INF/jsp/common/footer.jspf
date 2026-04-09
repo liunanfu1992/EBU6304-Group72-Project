@@ -82,6 +82,6 @@
         });
     });
 </script>
-<div class="footer-note">Sprint 1 prototype built with Servlet, JSP, and local JSON persistence.</div>
+<div class="footer-note">Sprint 2 prototype built with Servlet, JSP, lightweight JavaScript, and local JSON persistence.</div>
 </body>
 </html>

@@ -3,13 +3,11 @@
 <div class="card">
     <span class="eyebrow">MO Applications</span>
     <h2 class="card-title">Application Review Workspace</h2>
-    <p class="card-subtitle">This shared Sprint 2 workspace groups the application records for jobs you own.</p>
+    <p class="card-subtitle">Review submitted candidates for your jobs, inspect their CVs, and move applications through the shortlist or reject stage.</p>
 
     <c:if test="${param.notFound eq '1'}">
         <div class="error">The requested application record could not be found under your jobs.</div>
     </c:if>
-
-    <div class="info">Jiayang's backbone wires the shared applicant views here. Search, filter, and review actions will attach on top of this workspace in the next tasks.</div>
 
     <div class="actions-row">
         <a class="button-secondary" href="${pageContext.request.contextPath}/mo/applications">All Applications</a>
@@ -54,7 +52,7 @@
                         <td>
                             <c:choose>
                                 <c:when test="${applicationView.hasCv}">
-                                    <span class="tag">Uploaded</span>
+                                    <a class="button-secondary" href="${pageContext.request.contextPath}/mo/applications/cv/download?applicationId=${applicationView.application.id}">Download</a>
                                 </c:when>
                                 <c:otherwise>
                                     <span class="tag tag-muted">Missing</span>

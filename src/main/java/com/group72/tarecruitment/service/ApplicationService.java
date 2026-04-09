@@ -90,6 +90,14 @@ public class ApplicationService {
                 .filter(application -> taUserId != null && taUserId.equals(application.getTaUserId()));
     }
 
+    public Optional<Application> findTaApplicationForJob(String taUserId, String jobId) {
+        return applicationRepository.findByTaUserIdAndJobId(taUserId, jobId);
+    }
+
+    public Optional<TaApplicationView> findTaApplicationViewForJob(String taUserId, String jobId) {
+        return findTaApplicationForJob(taUserId, jobId).map(this::toTaApplicationView);
+    }
+
     public Optional<Application> findOwnedApplication(String applicationId, String moUserId) {
         return applicationRepository.findById(applicationId)
                 .filter(application -> isOwnedJob(application.getJobId(), moUserId));

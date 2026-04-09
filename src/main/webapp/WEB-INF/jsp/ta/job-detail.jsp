@@ -2,6 +2,17 @@
 <%@ include file="../common/header.jspf" %>
 <div class="card">
     <span class="eyebrow">Job Detail</span>
+
+    <c:if test="${param.alreadyApplied eq '1'}">
+        <div class="warning">You already have an application record for this job. Check your application dashboard for the latest status.</div>
+    </c:if>
+    <c:if test="${param.jobUnavailable eq '1'}">
+        <div class="error">This job is no longer open for new applications.</div>
+    </c:if>
+    <c:if test="${param.applyError eq '1'}">
+        <div class="error">The application could not be submitted. Please try again from this page.</div>
+    </c:if>
+
     <div class="job-card-head">
         <div>
             <h2>${jobMatch.job.title}</h2>
@@ -49,9 +60,35 @@
         </div>
     </c:if>
 
-    <p class="helper">Sprint 1 currently supports browsing and match preview only. Application submission will be added in a later sprint.</p>
+    <c:choose>
+        <c:when test="${empty existingApplication}">
+            <div class="info">
+                You can submit a TA application from this page. The request will be recorded immediately with status
+                <strong>Pending</strong>.
+            </div>
+        </c:when>
+        <c:otherwise>
+            <div class="info">
+                Your current application status for this job is
+                <strong>${existingApplication.statusLabel}</strong>,
+                submitted on ${existingApplication.submittedAtDisplay}.
+            </div>
+        </c:otherwise>
+    </c:choose>
 
     <div class="actions-row">
+        <c:choose>
+            <c:when test="${empty existingApplication}">
+                <form class="inline-form" method="post" action="${pageContext.request.contextPath}/ta/applications/apply"
+                      data-confirm="Submit your application for this TA job now?">
+                    <input type="hidden" name="jobId" value="${jobMatch.job.id}">
+                    <button class="button-primary" type="submit">Apply for This Job</button>
+                </form>
+            </c:when>
+            <c:otherwise>
+                <a class="button-primary" href="${pageContext.request.contextPath}/ta/applications">View My Application</a>
+            </c:otherwise>
+        </c:choose>
         <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs">Back to Job List</a>
         <a class="button-secondary" href="${pageContext.request.contextPath}/ta/profile">Refine My Skills</a>
         <a class="button-secondary" href="${pageContext.request.contextPath}/ta/cv">Update My CV</a>

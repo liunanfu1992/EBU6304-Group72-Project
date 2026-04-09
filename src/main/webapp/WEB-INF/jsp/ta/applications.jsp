@@ -3,9 +3,23 @@
 <div class="card">
     <span class="eyebrow">TA Applications</span>
     <h2 class="card-title">My Applications</h2>
-    <p class="card-subtitle">This shared Sprint 2 workspace shows the application records connected to your TA account.</p>
+    <p class="card-subtitle">Track every TA application you have submitted and manage pending requests before they are reviewed.</p>
 
-    <div class="info">Jiayang's backbone provides the shared application timeline here. Apply and withdraw actions will attach to this page in the next Sprint 2 task.</div>
+    <c:if test="${param.applied eq '1'}">
+        <div class="success">Your application was submitted successfully and is now pending MO review.</div>
+    </c:if>
+    <c:if test="${param.withdrawn eq '1'}">
+        <div class="success">The pending application was withdrawn successfully.</div>
+    </c:if>
+    <c:if test="${param.withdrawError eq 'status'}">
+        <div class="error">Only pending applications can be withdrawn.</div>
+    </c:if>
+    <c:if test="${param.withdrawError eq 'missing'}">
+        <div class="error">The application record could not be found under your account.</div>
+    </c:if>
+    <c:if test="${param.withdrawError eq '1'}">
+        <div class="error">The application could not be withdrawn. Please try again.</div>
+    </c:if>
 
     <c:choose>
         <c:when test="${empty applications}">
@@ -44,6 +58,20 @@
                                 </div>
                             </div>
                         </c:if>
+
+                        <div class="actions-row">
+                            <c:if test="${applicationView.job != null}">
+                                <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs/view?jobId=${applicationView.job.id}">View Job</a>
+                            </c:if>
+                            <c:if test="${applicationView.withdrawable}">
+                                <form class="inline-form" method="post"
+                                      action="${pageContext.request.contextPath}/ta/applications/withdraw"
+                                      data-confirm="Withdraw this pending application now?">
+                                    <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                                    <button class="button-warning" type="submit">Withdraw Application</button>
+                                </form>
+                            </c:if>
+                        </div>
                     </div>
                 </c:forEach>
             </div>

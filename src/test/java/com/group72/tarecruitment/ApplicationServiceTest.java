@@ -127,6 +127,22 @@ class ApplicationServiceTest {
         assertEquals("mo-smith", views.get(0).getModuleOwnerDisplayName());
         assertEquals("smith@example.com", views.get(0).getModuleOwnerEmail());
         assertEquals(Application.STATUS_PENDING, views.get(0).getStatusLabel());
+        assertTrue(views.get(0).isWithdrawable());
+    }
+
+    @Test
+    void findTaApplicationViewForJobShouldReturnOwnedApplicationAndReflectWithdrawState() {
+        ApplicationService service = buildService();
+
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(applyResult.isSuccess());
+        assertTrue(service.findTaApplicationViewForJob("ta-1", "job-1").isPresent());
+
+        assertTrue(service.withdrawApplication(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        TaApplicationView withdrawnView = service.findTaApplicationViewForJob("ta-1", "job-1").orElseThrow();
+        assertEquals(Application.STATUS_WITHDRAWN, withdrawnView.getStatusLabel());
+        assertFalse(withdrawnView.isWithdrawable());
     }
 
     @Test

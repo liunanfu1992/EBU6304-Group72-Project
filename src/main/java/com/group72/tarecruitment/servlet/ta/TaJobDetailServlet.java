@@ -3,9 +3,11 @@ package com.group72.tarecruitment.servlet.ta;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.model.TaJobView;
 import com.group72.tarecruitment.model.User;
+import com.group72.tarecruitment.repository.json.ApplicationRepository;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
+import com.group72.tarecruitment.service.ApplicationService;
 import com.group72.tarecruitment.service.JobService;
 import com.group72.tarecruitment.service.ProfileService;
 import com.group72.tarecruitment.util.ViewPaths;
@@ -21,11 +23,17 @@ import javax.servlet.http.HttpServletResponse;
 public class TaJobDetailServlet extends HttpServlet {
     private transient JobService jobService;
     private transient ProfileService profileService;
+    private transient ApplicationService applicationService;
 
     @Override
     public void init() {
         this.jobService = new JobService(new JobRepository(), new ProfileRepository(), new UserRepository());
         this.profileService = new ProfileService(new ProfileRepository());
+        this.applicationService = new ApplicationService(
+                new ApplicationRepository(),
+                new JobRepository(),
+                new UserRepository()
+        );
     }
 
     @Override
@@ -42,6 +50,7 @@ public class TaJobDetailServlet extends HttpServlet {
 
         request.setAttribute("profile", profile);
         request.setAttribute("jobMatch", jobView.get());
+        request.setAttribute("existingApplication", applicationService.findTaApplicationViewForJob(currentUser.getId(), jobId).orElse(null));
         request.getRequestDispatcher(ViewPaths.TA_JOB_DETAIL).forward(request, response);
     }
 }

@@ -161,6 +161,66 @@ class ApplicationServiceTest {
         assertTrue(service.findOwnedApplicationView(views.get(0).getApplication().getId(), "mo-1").isPresent());
     }
 
+    @Test
+    void moApplicationViewShouldLockReviewActionsAfterTaWithdrawal() {
+        ApplicationService service = buildService();
+
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(applyResult.isSuccess());
+        assertTrue(service.withdrawApplication(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        MoApplicationView view = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
+
+        assertTrue(view.isReviewLocked());
+        assertFalse(view.getCanShortlist());
+        assertFalse(view.getCanReject());
+    }
+
+    @Test
+    void updateApplicationStatusShouldRemainAvailableForClosedOwnedJobs() {
+        UserRepository userRepository = new UserRepository(tempDir.resolve("users-closed-job.json"));
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs-closed-job.json"));
+        ApplicationRepository applicationRepository = new ApplicationRepository(tempDir.resolve("applications-closed-job.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles-closed-job.json"));
+
+        userRepository.save(new User("ta-1", "ta-alice", "", Role.TA, "alice@example.com"));
+        userRepository.save(new User("mo-1", "mo-smith", "", Role.MO, "smith@example.com"));
+        profileRepository.save(new Profile(
+                "ta-1",
+                "Alice",
+                "20260001",
+                "Computer Science",
+                "alice@example.com",
+                List.of("Java"),
+                List.of("Mentoring"),
+                "ta-1-resume.pdf"
+        ));
+
+        Job job = new Job("job-1", "Open Job", "CS101", "Open job", List.of("Java"), 6, "mo-1", Job.STATUS_OPEN);
+        jobRepository.save(job);
+
+        ApplicationService service = new ApplicationService(applicationRepository, jobRepository, userRepository, profileRepository);
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(applyResult.isSuccess());
+
+        job.setStatus(Job.STATUS_CLOSED);
+        jobRepository.save(job);
+
+        ApplicationActionResult reviewResult = service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        );
+
+        assertTrue(reviewResult.isSuccess());
+        MoApplicationView view = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
+        assertEquals(Application.STATUS_SHORTLISTED, view.getStatusLabel());
+        assertTrue(view.isJobClosed());
+        assertFalse(view.getCanShortlist());
+        assertTrue(view.getCanReject());
+        assertFalse(view.isReviewLocked());
+    }
+
     private ApplicationService buildService() {
         UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
         JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));

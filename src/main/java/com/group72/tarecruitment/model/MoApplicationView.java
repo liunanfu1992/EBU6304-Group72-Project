@@ -69,6 +69,10 @@ public class MoApplicationView {
         return profile != null && profile.hasCv();
     }
 
+    public boolean getHasCv() {
+        return hasCv();
+    }
+
     public String getStatusLabel() {
         return application == null || application.getStatus() == null ? "-" : application.getStatus();
     }
@@ -95,5 +99,21 @@ public class MoApplicationView {
     public String getSubmittedAtDisplay() {
         Long createdAt = application == null ? null : application.getCreatedAtEpochMillis();
         return createdAt == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createdAt));
+    }
+
+    public boolean isReviewLocked() {
+        return application == null || application.isWithdrawn();
+    }
+
+    public boolean getCanShortlist() {
+        return application != null && !application.isWithdrawn() && !application.isShortlisted();
+    }
+
+    public boolean getCanReject() {
+        return application != null && !application.isWithdrawn() && !application.isRejected();
+    }
+
+    public boolean isJobClosed() {
+        return job != null && job.isClosed();
     }
 }

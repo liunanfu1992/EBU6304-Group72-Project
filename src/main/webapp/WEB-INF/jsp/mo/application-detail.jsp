@@ -2,6 +2,23 @@
 <%@ include file="../common/header.jspf" %>
 <div class="card">
     <span class="eyebrow">Applicant Detail</span>
+
+    <c:if test="${param.reviewUpdated eq 'shortlisted'}">
+        <div class="success">The application status was updated to SHORTLISTED.</div>
+    </c:if>
+    <c:if test="${param.reviewUpdated eq 'rejected'}">
+        <div class="success">The application status was updated to REJECTED.</div>
+    </c:if>
+    <c:if test="${param.reviewError eq 'withdrawn'}">
+        <div class="error">This application was withdrawn by the TA and can no longer be processed.</div>
+    </c:if>
+    <c:if test="${param.reviewError eq 'missing'}">
+        <div class="error">The requested application record could not be found under your jobs.</div>
+    </c:if>
+    <c:if test="${param.reviewError eq 'invalid' or param.reviewError eq '1'}">
+        <div class="error">The application status could not be updated. Please try again.</div>
+    </c:if>
+
     <div class="job-card-head">
         <div>
             <h2>${applicationView.candidateDisplayName}</h2>
@@ -28,7 +45,7 @@
 
 <div class="card">
     <h3 class="card-title">Applied Job</h3>
-    <p class="helper">This section anchors the shared application record to the target job before shortlist/reject actions are attached.</p>
+    <p class="helper">This section anchors the shared application record to the target job so the review decision stays tied to the correct module posting.</p>
     <c:choose>
         <c:when test="${applicationView.job == null}">
             <p>The referenced job is no longer available.</p>
@@ -57,7 +74,7 @@
 
 <div class="card">
     <h3 class="card-title">Candidate Profile Snapshot</h3>
-    <p class="helper">This is the shared review skeleton for Sprint 2. CV download and status action controls will plug into this page in the next implementation tasks.</p>
+    <p class="helper">Use this snapshot to inspect the candidate's submitted details before making a review decision.</p>
     <c:choose>
         <c:when test="${applicationView.profile == null}">
             <p>No TA profile record is available yet.</p>

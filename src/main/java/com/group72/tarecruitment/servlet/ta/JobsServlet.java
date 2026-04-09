@@ -11,6 +11,9 @@ import com.group72.tarecruitment.service.ProfileService;
 import com.group72.tarecruitment.util.SkillCatalog;
 import com.group72.tarecruitment.util.ViewPaths;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +65,7 @@ public class JobsServlet extends HttpServlet {
         request.setAttribute("hasNextPage", safePage < totalPages);
         request.setAttribute("previousPage", safePage - 1);
         request.setAttribute("nextPage", safePage + 1);
+        request.setAttribute("paginationQuery", buildPaginationQuery(keyword, selectedFilterSkills));
         request.getRequestDispatcher(ViewPaths.TA_JOBS).forward(request, response);
     }
 
@@ -83,5 +87,20 @@ public class JobsServlet extends HttpServlet {
             lookup.put(skill, Boolean.TRUE);
         }
         return lookup;
+    }
+
+    private String buildPaginationQuery(String keyword, List<String> selectedFilterSkills) {
+        List<String> parts = new ArrayList<>();
+        if (keyword != null && !keyword.isBlank()) {
+            parts.add("keyword=" + encode(keyword.trim()));
+        }
+        for (String skill : selectedFilterSkills) {
+            parts.add("filterSkills=" + encode(skill));
+        }
+        return parts.isEmpty() ? "" : "&" + String.join("&", parts);
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

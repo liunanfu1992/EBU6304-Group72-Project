@@ -143,11 +143,11 @@
             <c:if test="${totalPages gt 1}">
                 <div class="actions-row">
                     <c:if test="${hasPreviousPage}">
-                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${previousPage}">Previous Page</a>
+                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${previousPage}${paginationQuery}">Previous Page</a>
                     </c:if>
                     <span class="selected-counter">Page ${currentPage} of ${totalPages}</span>
                     <c:if test="${hasNextPage}">
-                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${nextPage}">Next Page</a>
+                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs?page=${nextPage}${paginationQuery}">Next Page</a>
                     </c:if>
                 </div>
             </c:if>

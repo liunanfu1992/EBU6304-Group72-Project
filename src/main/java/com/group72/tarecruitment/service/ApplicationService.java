@@ -114,6 +114,28 @@ public class ApplicationService {
                 .toList();
     }
 
+    public List<String> listMoApplicationMajors(String moUserId) {
+        return listMoApplicationViews(moUserId).stream()
+                .map(MoApplicationView::getMajorDisplay)
+                .filter(value -> value != null && !value.isBlank() && !"-".equals(value))
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    public List<String> listMoApplicationSkills(String moUserId) {
+        List<String> skills = new ArrayList<>();
+        for (MoApplicationView view : listMoApplicationViews(moUserId)) {
+            for (String skill : view.getPredefinedProfileSkills()) {
+                if (!skills.contains(skill)) {
+                    skills.add(skill);
+                }
+            }
+        }
+        skills.sort(String.CASE_INSENSITIVE_ORDER);
+        return skills;
+    }
+
     public Optional<Application> findTaApplication(String applicationId, String taUserId) {
         return applicationRepository.findById(applicationId)
                 .filter(application -> taUserId != null && taUserId.equals(application.getTaUserId()));

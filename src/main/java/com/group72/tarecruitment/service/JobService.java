@@ -15,6 +15,7 @@ import com.group72.tarecruitment.util.SkillCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,11 @@ public class JobService {
                 .sorted(Comparator
                         .comparingInt(TaJobView::getMatchPercent).reversed()
                         .thenComparing(jobView -> jobView.getJob().getTitle(), String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    public List<TaJobView> listTaJobViews(Profile profile, String keyword, List<String> selectedFilterSkills) {
+        return listTaJobViews(profile).stream()
                 .collect(Collectors.toList());
     }
 

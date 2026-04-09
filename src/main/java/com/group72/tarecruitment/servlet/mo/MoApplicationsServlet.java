@@ -11,7 +11,9 @@ import com.group72.tarecruitment.service.JobService;
 import com.group72.tarecruitment.util.SkillCatalog;
 import com.group72.tarecruitment.util.ViewPaths;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -60,8 +62,19 @@ public class MoApplicationsServlet extends HttpServlet {
         request.setAttribute("filterMajor", criteria.getMajor());
         request.setAttribute("filterStatus", criteria.getStatus());
         request.setAttribute("selectedFilterSkills", criteria.getSelectedSkills());
+        request.setAttribute("selectedFilterSkillLookup", buildSelectedSkillLookup(criteria.getSelectedSkills()));
         request.setAttribute("hasActiveFilters", criteria.hasActiveFilters());
         request.setAttribute("selectedJobId", jobId == null ? "" : jobId);
+        request.setAttribute("clearFilterHref", request.getContextPath() + "/mo/applications"
+                + ((jobId == null || jobId.isBlank()) ? "" : "?jobId=" + jobId));
         request.getRequestDispatcher(ViewPaths.MO_APPLICATIONS).forward(request, response);
+    }
+
+    private Map<String, Boolean> buildSelectedSkillLookup(List<String> selectedFilterSkills) {
+        Map<String, Boolean> lookup = new LinkedHashMap<>();
+        for (String skill : selectedFilterSkills) {
+            lookup.put(skill, Boolean.TRUE);
+        }
+        return lookup;
     }
 }

@@ -18,6 +18,65 @@
         </c:forEach>
     </div>
 
+    <div class="card" style="margin-top: 18px; margin-bottom: 18px; padding: 20px;">
+        <form method="get" action="${pageContext.request.contextPath}/mo/applications" data-auto-filter="mo-applications">
+            <c:if test="${not empty selectedJobId}">
+                <input type="hidden" name="jobId" value="${selectedJobId}">
+            </c:if>
+
+            <div class="form-grid">
+                <div class="field-card">
+                    <label for="mo-keyword">Keyword</label>
+                    <input id="mo-keyword" name="keyword" value="${filterKeyword}"
+                           placeholder="Search candidate name, student ID, email, module code"
+                           data-auto-submit="debounce">
+                </div>
+
+                <div class="field-card">
+                    <label for="mo-major">Major</label>
+                    <select id="mo-major" name="major" data-auto-submit="immediate">
+                        <option value="">All majors</option>
+                        <c:forEach items="${availableMajors}" var="major">
+                            <option value="${major}" <c:if test="${filterMajor eq major}">selected</c:if>>${major}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+
+                <div class="field-card">
+                    <label for="mo-status">Status</label>
+                    <select id="mo-status" name="status" data-auto-submit="immediate">
+                        <option value="">All statuses</option>
+                        <c:forEach items="${statusOptions}" var="status">
+                            <option value="${status}" <c:if test="${filterStatus eq status}">selected</c:if>>${status}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+            </div>
+
+            <div class="job-section">
+                <strong>Filter by candidate skills</strong>
+                <div class="tag-list" data-skill-count="mo-filter-count">
+                    <c:forEach items="${availableSkills}" var="skill">
+                        <label class="tag tag-selectable">
+                            <input type="checkbox" name="filterSkills" value="${skill}"
+                                   <c:if test="${selectedFilterSkillLookup[skill]}">checked</c:if>
+                                   data-auto-submit="immediate">
+                            <span>${skill}</span>
+                        </label>
+                    </c:forEach>
+                </div>
+                <div id="mo-filter-count" class="selected-counter" style="margin-top: 8px;">0 selected</div>
+            </div>
+
+            <div class="actions-row">
+                <button class="button-primary" type="submit">Apply Filters</button>
+                <c:if test="${hasActiveFilters}">
+                    <a class="button-secondary" href="${clearFilterHref}">Clear Filters</a>
+                </c:if>
+            </div>
+        </form>
+    </div>
+
     <c:choose>
         <c:when test="${empty applications}">
             <p>No application records are available for the current scope.</p>

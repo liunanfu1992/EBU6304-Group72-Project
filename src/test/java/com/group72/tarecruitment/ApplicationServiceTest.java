@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.group72.tarecruitment.model.Application;
 import com.group72.tarecruitment.model.ApplicationActionResult;
 import com.group72.tarecruitment.model.Job;
+import com.group72.tarecruitment.model.MoApplicationFilterCriteria;
 import com.group72.tarecruitment.model.MoApplicationView;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.model.Role;
@@ -159,6 +160,56 @@ class ApplicationServiceTest {
         assertEquals("Computer Science", views.get(0).getMajorDisplay());
         assertTrue(views.get(0).hasCv());
         assertTrue(service.findOwnedApplicationView(views.get(0).getApplication().getId(), "mo-1").isPresent());
+    }
+
+    @Test
+    void moApplicationFiltersShouldSupportKeywordMajorStatusAndSkillQueries() {
+        ApplicationService service = buildService();
+
+        assertTrue(service.applyToJob("ta-1", "job-1").isSuccess());
+        ApplicationActionResult secondApply = service.applyToJob("ta-2", "job-1");
+        assertTrue(secondApply.isSuccess());
+        assertTrue(service.updateApplicationStatus(secondApply.getApplication().getId(), "mo-1", Application.STATUS_SHORTLISTED).isSuccess());
+
+        List<MoApplicationView> keywordMatches = service.listMoApplicationViews(
+                "mo-1",
+                new MoApplicationFilterCriteria("20260001", "", "", List.of())
+        );
+        List<MoApplicationView> majorMatches = service.listMoApplicationViews(
+                "mo-1",
+                new MoApplicationFilterCriteria("", "Mathematics", "", List.of())
+        );
+        List<MoApplicationView> statusMatches = service.listMoApplicationViews(
+                "mo-1",
+                new MoApplicationFilterCriteria("", "", Application.STATUS_SHORTLISTED, List.of())
+        );
+        List<MoApplicationView> skillMatches = service.listMoApplicationViews(
+                "mo-1",
+                new MoApplicationFilterCriteria("", "", "", List.of("Python"))
+        );
+
+        assertEquals(List.of("Alice"), keywordMatches.stream().map(MoApplicationView::getCandidateDisplayName).toList());
+        assertEquals(List.of("Bob"), majorMatches.stream().map(MoApplicationView::getCandidateDisplayName).toList());
+        assertEquals(List.of("Bob"), statusMatches.stream().map(MoApplicationView::getCandidateDisplayName).toList());
+        assertEquals(List.of("Bob"), skillMatches.stream().map(MoApplicationView::getCandidateDisplayName).toList());
+    }
+
+    @Test
+    void moApplicationFiltersShouldRespectOwnedJobScopeAndExposeAvailableFacets() {
+        ApplicationService service = buildService();
+
+        assertTrue(service.applyToJob("ta-1", "job-1").isSuccess());
+        assertTrue(service.applyToJob("ta-2", "job-3").isSuccess());
+
+        List<MoApplicationView> ownedJobOnly = service.listMoApplicationViewsForJob(
+                "job-1",
+                "mo-1",
+                new MoApplicationFilterCriteria("Open Job", "", "", List.of("Java"))
+        );
+
+        assertEquals(List.of("Alice"), ownedJobOnly.stream().map(MoApplicationView::getCandidateDisplayName).toList());
+        assertEquals(List.of("Computer Science"), service.listMoApplicationMajors("mo-1"));
+        assertEquals(List.of("Java"), service.listMoApplicationSkills("mo-1"));
     }
 
     @Test

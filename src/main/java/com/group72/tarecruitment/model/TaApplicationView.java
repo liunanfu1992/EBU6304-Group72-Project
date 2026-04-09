@@ -63,4 +63,8 @@ public class TaApplicationView {
         Long createdAt = application == null ? null : application.getCreatedAtEpochMillis();
         return createdAt == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createdAt));
     }
+
+    public boolean isWithdrawable() {
+        return application != null && application.isPending();
+    }
 }

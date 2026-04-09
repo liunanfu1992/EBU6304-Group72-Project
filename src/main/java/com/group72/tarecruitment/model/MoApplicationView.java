@@ -4,7 +4,9 @@ import com.group72.tarecruitment.util.SkillCatalog;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MoApplicationView {
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
@@ -75,6 +77,34 @@ public class MoApplicationView {
         return SkillCatalog.extractPredefinedSkills(getProfileSkills());
     }
 
+    public List<String> getMatchedSkills() {
+        if (job == null || job.getRequiredSkills() == null || job.getRequiredSkills().isEmpty()) {
+            return List.of();
+        }
+
+        List<String> matched = new ArrayList<>();
+        for (String requiredSkill : job.getRequiredSkills()) {
+            if (containsSkillIgnoreCase(getProfileSkills(), requiredSkill)) {
+                matched.add(requiredSkill);
+            }
+        }
+        return matched;
+    }
+
+    public List<String> getMissingSkills() {
+        if (job == null || job.getRequiredSkills() == null || job.getRequiredSkills().isEmpty()) {
+            return List.of();
+        }
+
+        List<String> missing = new ArrayList<>();
+        for (String requiredSkill : job.getRequiredSkills()) {
+            if (!containsSkillIgnoreCase(getProfileSkills(), requiredSkill)) {
+                missing.add(requiredSkill);
+            }
+        }
+        return missing;
+    }
+
     public boolean hasCv() {
         return profile != null && profile.hasCv();
     }
@@ -125,5 +155,19 @@ public class MoApplicationView {
 
     public boolean isJobClosed() {
         return job != null && job.isClosed();
+    }
+
+    private boolean containsSkillIgnoreCase(List<String> skills, String candidate) {
+        if (candidate == null || candidate.isBlank()) {
+            return false;
+        }
+
+        String normalizedCandidate = candidate.trim().toLowerCase(Locale.ROOT);
+        for (String skill : skills) {
+            if (skill != null && normalizedCandidate.equals(skill.trim().toLowerCase(Locale.ROOT))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

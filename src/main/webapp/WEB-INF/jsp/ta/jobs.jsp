@@ -3,11 +3,51 @@
 <div class="card">
     <span class="eyebrow">Job Match</span>
     <h2 class="card-title">Available Jobs</h2>
-    <p class="card-subtitle">Browse current TA openings and preview the predefined-skill match against your profile.</p>
+    <p class="card-subtitle">Browse current TA openings, search by keywords, and narrow the list with predefined skill filters.</p>
 
     <c:if test="${param.notFound eq '1'}">
         <div class="error">The requested job is no longer available for browsing.</div>
     </c:if>
+
+    <div class="card" style="margin-top: 18px; margin-bottom: 18px; padding: 20px;">
+        <form method="get" action="${pageContext.request.contextPath}/ta/jobs" data-auto-filter="job-search">
+            <div class="metrics-row">
+                <div>
+                    <label for="keyword">Keyword Search</label>
+                    <input id="keyword" name="keyword" value="${keyword}" placeholder="Search title, module code, description, skills, or module owner"
+                           data-auto-submit="debounce">
+                </div>
+                <div>
+                    <label>Selected Skill Filters</label>
+                    <div class="helper">
+                        Use multiple predefined skills to keep only jobs that require all selected skills.
+                    </div>
+                    <div id="ta-filter-count" class="selected-counter" style="margin-top: 8px;">0 selected</div>
+                </div>
+            </div>
+
+            <div class="job-section">
+                <strong>Filter by predefined skills</strong>
+                <div class="tag-list" data-skill-count="ta-filter-count">
+                    <c:forEach items="${availableSkills}" var="skill">
+                        <label class="tag tag-selectable">
+                            <input type="checkbox" name="filterSkills" value="${skill}"
+                                   <c:if test="${selectedFilterSkillLookup[skill]}">checked</c:if>
+                                   data-auto-submit="immediate">
+                            <span>${skill}</span>
+                        </label>
+                    </c:forEach>
+                </div>
+            </div>
+
+            <div class="actions-row">
+                <button class="button-primary" type="submit">Apply Filters</button>
+                <c:if test="${hasActiveFilters}">
+                    <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs">Clear Filters</a>
+                </c:if>
+            </div>
+        </form>
+    </div>
 
     <c:choose>
         <c:when test="${empty profile.selectedSkills}">
@@ -30,7 +70,14 @@
 
     <c:choose>
         <c:when test="${empty jobMatches}">
-            <p>No jobs have been posted yet.</p>
+            <c:choose>
+                <c:when test="${hasActiveFilters}">
+                    <p>No jobs match the current keyword or skill filters.</p>
+                </c:when>
+                <c:otherwise>
+                    <p>No jobs have been posted yet.</p>
+                </c:otherwise>
+            </c:choose>
         </c:when>
         <c:otherwise>
             <div class="job-list">

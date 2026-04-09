@@ -78,21 +78,49 @@
 <div class="card">
     <h3 class="card-title">Candidate Profile Snapshot</h3>
     <p class="helper">Use this snapshot to inspect the candidate's submitted details before making a review decision.</p>
-    <c:choose>
-        <c:when test="${applicationView.profile == null}">
-            <p>No TA profile record is available yet.</p>
-        </c:when>
-        <c:otherwise>
-            <div class="job-section">
-                <strong>Profile Skills</strong>
+    <div class="detail-grid">
+        <div class="detail-panel">
+            <h4>Profile Skills</h4>
+            <c:choose>
+                <c:when test="${applicationView.profile == null}">
+                    <p class="muted">No TA profile record is available yet.</p>
+                </c:when>
+                <c:when test="${empty applicationView.profile.allSkills}">
+                    <p class="muted">This candidate has not selected any skills yet.</p>
+                </c:when>
+                <c:otherwise>
+                    <div class="tag-list">
+                        <c:forEach items="${applicationView.profile.allSkills}" var="skill">
+                            <span class="tag">${skill}</span>
+                        </c:forEach>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <div class="detail-panel">
+            <h4>Skill Fit Snapshot</h4>
+            <c:if test="${not empty applicationView.matchedSkills}">
+                <strong>Matched</strong>
                 <div class="tag-list">
-                    <c:forEach items="${applicationView.profile.allSkills}" var="skill">
+                    <c:forEach items="${applicationView.matchedSkills}" var="skill">
                         <span class="tag">${skill}</span>
                     </c:forEach>
                 </div>
-            </div>
-        </c:otherwise>
-    </c:choose>
+            </c:if>
+            <c:if test="${not empty applicationView.missingSkills}">
+                <strong>Missing</strong>
+                <div class="tag-list">
+                    <c:forEach items="${applicationView.missingSkills}" var="skill">
+                        <span class="tag tag-muted">${skill}</span>
+                    </c:forEach>
+                </div>
+            </c:if>
+            <c:if test="${empty applicationView.matchedSkills and empty applicationView.missingSkills}">
+                <p class="muted">No structured job skill requirements are attached to this application.</p>
+            </c:if>
+        </div>
+    </div>
 
     <div class="actions-row">
         <c:if test="${applicationView.hasCv}">
@@ -102,6 +130,7 @@
             <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/applications/status"
                   data-confirm="Mark this candidate as SHORTLISTED for the current job?">
                 <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                <input type="hidden" name="jobId" value="${returnJobId}">
                 <input type="hidden" name="status" value="SHORTLISTED">
                 <button class="button-primary" type="submit">Shortlist</button>
             </form>
@@ -110,6 +139,7 @@
             <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/applications/status"
                   data-confirm="Mark this candidate as REJECTED for the current job?">
                 <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                <input type="hidden" name="jobId" value="${returnJobId}">
                 <input type="hidden" name="status" value="REJECTED">
                 <button class="button-warning" type="submit">Reject</button>
             </form>
@@ -117,7 +147,7 @@
         <c:if test="${applicationView.reviewLocked}">
             <span class="tag tag-muted">Review locked after TA withdrawal</span>
         </c:if>
-        <a class="button-secondary" href="${pageContext.request.contextPath}/mo/applications">Back to Applications</a>
+        <a class="button-secondary" href="${backToListHref}">Back to Applications</a>
     </div>
 </div>
 <%@ include file="../common/footer.jspf" %>

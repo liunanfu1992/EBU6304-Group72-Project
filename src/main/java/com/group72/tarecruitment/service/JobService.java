@@ -73,9 +73,11 @@ public class JobService {
 
     public List<TaJobView> listTaJobViews(Profile profile, String keyword, List<String> selectedFilterSkills) {
         String normalizedKeyword = safeTrim(keyword);
+        List<String> normalizedFilterSkills = SkillCatalog.normalizeSelectedSkills(selectedFilterSkills);
 
         return listTaJobViews(profile).stream()
                 .filter(jobView -> matchesKeyword(jobView, normalizedKeyword))
+                .filter(jobView -> matchesSelectedSkills(jobView, normalizedFilterSkills))
                 .collect(Collectors.toList());
     }
 
@@ -352,6 +354,15 @@ public class JobService {
                 .filter(value -> !isBlank(value))
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .anyMatch(value -> value.contains(normalizedKeyword));
+    }
+
+    private boolean matchesSelectedSkills(TaJobView jobView, List<String> selectedFilterSkills) {
+        if (selectedFilterSkills == null || selectedFilterSkills.isEmpty()) {
+            return true;
+        }
+
+        List<String> jobSkills = SkillCatalog.extractPredefinedSkills(jobView.getJob().getRequiredSkills());
+        return selectedFilterSkills.stream().allMatch(jobSkills::contains);
     }
 
     private boolean isCandidateProfileReady(Profile profile) {

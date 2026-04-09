@@ -1,5 +1,6 @@
 package com.group72.tarecruitment.servlet.mo;
 
+import com.group72.tarecruitment.model.MoApplicationFilterCriteria;
 import com.group72.tarecruitment.model.User;
 import com.group72.tarecruitment.repository.json.ApplicationRepository;
 import com.group72.tarecruitment.repository.json.JobRepository;
@@ -7,8 +8,10 @@ import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
 import com.group72.tarecruitment.service.ApplicationService;
 import com.group72.tarecruitment.service.JobService;
+import com.group72.tarecruitment.util.SkillCatalog;
 import com.group72.tarecruitment.util.ViewPaths;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -37,10 +40,27 @@ public class MoApplicationsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         String jobId = request.getParameter("jobId");
+        MoApplicationFilterCriteria criteria = new MoApplicationFilterCriteria(
+                request.getParameter("keyword"),
+                request.getParameter("major"),
+                request.getParameter("status"),
+                SkillCatalog.normalizeSelectedSkills(
+                        request.getParameterValues("filterSkills") == null ? List.of() : List.of(request.getParameterValues("filterSkills"))
+                )
+        );
+
         request.setAttribute("applications", jobId == null || jobId.isBlank()
-                ? applicationService.listMoApplicationViews(currentUser.getId())
-                : applicationService.listMoApplicationViewsForJob(jobId, currentUser.getId()));
+                ? applicationService.listMoApplicationViews(currentUser.getId(), criteria)
+                : applicationService.listMoApplicationViewsForJob(jobId, currentUser.getId(), criteria));
         request.setAttribute("jobs", jobService.listJobsByMoUser(currentUser.getId()));
+        request.setAttribute("availableMajors", applicationService.listMoApplicationMajors(currentUser.getId()));
+        request.setAttribute("availableSkills", applicationService.listMoApplicationSkills(currentUser.getId()));
+        request.setAttribute("statusOptions", List.of("PENDING", "SHORTLISTED", "REJECTED", "WITHDRAWN"));
+        request.setAttribute("filterKeyword", criteria.getKeyword());
+        request.setAttribute("filterMajor", criteria.getMajor());
+        request.setAttribute("filterStatus", criteria.getStatus());
+        request.setAttribute("selectedFilterSkills", criteria.getSelectedSkills());
+        request.setAttribute("hasActiveFilters", criteria.hasActiveFilters());
         request.setAttribute("selectedJobId", jobId == null ? "" : jobId);
         request.getRequestDispatcher(ViewPaths.MO_APPLICATIONS).forward(request, response);
     }

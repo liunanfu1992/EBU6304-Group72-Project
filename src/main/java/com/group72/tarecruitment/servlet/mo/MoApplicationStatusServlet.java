@@ -36,16 +36,18 @@ public class MoApplicationStatusServlet extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         String applicationId = request.getParameter("applicationId");
         String status = request.getParameter("status");
+        String jobId = request.getParameter("jobId");
 
         ApplicationActionResult result = applicationService.updateApplicationStatus(applicationId, currentUser.getId(), status);
         String encodedApplicationId = encode(applicationId);
+        String detailSuffix = (jobId == null || jobId.isBlank()) ? "" : "&jobId=" + encode(jobId);
 
         if (result.isSuccess()) {
             String statusFlag = Application.STATUS_SHORTLISTED.equalsIgnoreCase(status)
                     ? "shortlisted"
                     : Application.STATUS_REJECTED.equalsIgnoreCase(status) ? "rejected" : "updated";
             response.sendRedirect(request.getContextPath() + "/mo/applications/view?applicationId="
-                    + encodedApplicationId + "&reviewUpdated=" + statusFlag);
+                    + encodedApplicationId + detailSuffix + "&reviewUpdated=" + statusFlag);
             return;
         }
 
@@ -59,7 +61,7 @@ public class MoApplicationStatusServlet extends HttpServlet {
         }
 
         response.sendRedirect(request.getContextPath() + "/mo/applications/view?applicationId="
-                + encodedApplicationId + "&reviewError=" + errorFlag);
+                + encodedApplicationId + detailSuffix + "&reviewError=" + errorFlag);
     }
 
     private String encode(String value) {

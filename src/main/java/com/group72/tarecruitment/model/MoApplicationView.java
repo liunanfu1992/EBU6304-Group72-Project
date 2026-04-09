@@ -69,6 +69,10 @@ public class MoApplicationView {
         return profile != null && profile.hasCv();
     }
 
+    public boolean getHasCv() {
+        return hasCv();
+    }
+
     public String getStatusLabel() {
         return application == null || application.getStatus() == null ? "-" : application.getStatus();
     }

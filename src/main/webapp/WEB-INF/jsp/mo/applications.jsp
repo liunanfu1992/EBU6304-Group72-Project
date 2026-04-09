@@ -79,7 +79,14 @@
 
     <c:choose>
         <c:when test="${empty applications}">
-            <p>No application records are available for the current scope.</p>
+            <c:choose>
+                <c:when test="${hasActiveFilters}">
+                    <p>No application records match the current search and filter conditions.</p>
+                </c:when>
+                <c:otherwise>
+                    <p>No application records are available for the current scope.</p>
+                </c:otherwise>
+            </c:choose>
         </c:when>
         <c:otherwise>
             <table>

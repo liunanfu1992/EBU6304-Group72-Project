@@ -21,9 +21,43 @@
         <div class="error">The application could not be withdrawn. Please try again.</div>
     </c:if>
 
+    <div class="summary-grid">
+        <c:forEach items="${applicationSummary}" var="entry">
+            <div class="summary-card">
+                <strong>${entry.value}</strong>
+                <span>${entry.key}</span>
+            </div>
+        </c:forEach>
+    </div>
+
+    <div class="status-guide">
+        <div class="detail-panel">
+            <span class="status-badge status-pending">PENDING</span>
+            <p class="muted">Your application has been submitted and is waiting for MO review.</p>
+        </div>
+        <div class="detail-panel">
+            <span class="status-badge status-shortlisted">SHORTLISTED</span>
+            <p class="muted">You have passed the initial review for this job.</p>
+        </div>
+        <div class="detail-panel">
+            <span class="status-badge status-rejected">REJECTED</span>
+            <p class="muted">This job has been reviewed and is no longer active for your application.</p>
+        </div>
+        <div class="detail-panel">
+            <span class="status-badge status-withdrawn">WITHDRAWN</span>
+            <p class="muted">You cancelled the pending request before a review decision was made.</p>
+        </div>
+    </div>
+
     <c:choose>
         <c:when test="${empty applications}">
-            <p>You have not submitted any application records yet.</p>
+            <div class="empty-state">
+                <p>You have not submitted any application records yet.</p>
+                <div class="actions-row">
+                    <a class="button-primary" href="${pageContext.request.contextPath}/ta/jobs">Browse Open Jobs</a>
+                    <a class="button-secondary" href="${pageContext.request.contextPath}/ta/profile">Complete Profile</a>
+                </div>
+            </div>
         </c:when>
         <c:otherwise>
             <div class="job-list">
@@ -70,6 +104,9 @@
                                     <input type="hidden" name="applicationId" value="${applicationView.application.id}">
                                     <button class="button-warning" type="submit">Withdraw Application</button>
                                 </form>
+                            </c:if>
+                            <c:if test="${not applicationView.withdrawable}">
+                                <span class="tag tag-muted">Status locked for TA action</span>
                             </c:if>
                         </div>
                     </div>

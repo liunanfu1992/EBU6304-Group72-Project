@@ -280,6 +280,26 @@
             background: rgba(117, 127, 154, 0.14);
             color: #475569;
         }
+        .tag-selectable {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(15, 76, 92, 0.12);
+            background: rgba(255, 255, 255, 0.82);
+            cursor: pointer;
+            transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+        }
+        .tag-selectable:hover {
+            border-color: rgba(15, 76, 92, 0.28);
+            transform: translateY(-1px);
+        }
+        .tag-selectable input[type="checkbox"] {
+            margin: 0;
+        }
+        .tag-selectable span {
+            line-height: 1.2;
+        }
         .skill-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

@@ -15,6 +15,7 @@ import com.group72.tarecruitment.util.SkillCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,16 @@ public class JobService {
                 .sorted(Comparator
                         .comparingInt(TaJobView::getMatchPercent).reversed()
                         .thenComparing(jobView -> jobView.getJob().getTitle(), String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    public List<TaJobView> listTaJobViews(Profile profile, String keyword, List<String> selectedFilterSkills) {
+        String normalizedKeyword = safeTrim(keyword);
+        List<String> normalizedFilterSkills = SkillCatalog.normalizeSelectedSkills(selectedFilterSkills);
+
+        return listTaJobViews(profile).stream()
+                .filter(jobView -> matchesKeyword(jobView, normalizedKeyword))
+                .filter(jobView -> matchesSelectedSkills(jobView, normalizedFilterSkills))
                 .collect(Collectors.toList());
     }
 
@@ -323,6 +334,35 @@ public class JobService {
                 .filter(value -> !isBlank(value))
                 .orElse("");
         return new TaJobView(matchView, moduleOwnerDisplayName, moduleOwnerEmail);
+    }
+
+    private boolean matchesKeyword(TaJobView jobView, String keyword) {
+        if (isBlank(keyword)) {
+            return true;
+        }
+
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<String> fields = new ArrayList<>();
+        fields.add(jobView.getJob().getTitle());
+        fields.add(jobView.getJob().getModuleCode());
+        fields.add(jobView.getJob().getDescription());
+        fields.add(jobView.getModuleOwnerDisplayName());
+        fields.add(jobView.getModuleOwnerEmail());
+        fields.addAll(jobView.getJob().getRequiredSkills());
+
+        return fields.stream()
+                .filter(value -> !isBlank(value))
+                .map(value -> value.toLowerCase(Locale.ROOT))
+                .anyMatch(value -> value.contains(normalizedKeyword));
+    }
+
+    private boolean matchesSelectedSkills(TaJobView jobView, List<String> selectedFilterSkills) {
+        if (selectedFilterSkills == null || selectedFilterSkills.isEmpty()) {
+            return true;
+        }
+
+        List<String> jobSkills = SkillCatalog.extractPredefinedSkills(jobView.getJob().getRequiredSkills());
+        return selectedFilterSkills.stream().allMatch(jobSkills::contains);
     }
 
     private boolean isCandidateProfileReady(Profile profile) {

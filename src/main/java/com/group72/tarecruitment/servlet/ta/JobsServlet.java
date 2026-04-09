@@ -8,9 +8,15 @@ import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
 import com.group72.tarecruitment.service.JobService;
 import com.group72.tarecruitment.service.ProfileService;
+import com.group72.tarecruitment.util.SkillCatalog;
 import com.group72.tarecruitment.util.ViewPaths;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +40,11 @@ public class JobsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         Profile profile = profileService.getOrCreateProfile(currentUser);
-        List<TaJobView> allJobMatches = jobService.listTaJobViews(profile);
+        String keyword = request.getParameter("keyword");
+        List<String> selectedFilterSkills = SkillCatalog.normalizeSelectedSkills(
+                request.getParameterValues("filterSkills") == null ? List.of() : List.of(request.getParameterValues("filterSkills"))
+        );
+        List<TaJobView> allJobMatches = jobService.listTaJobViews(profile, keyword, selectedFilterSkills);
         int currentPage = parsePage(request.getParameter("page"));
         int totalPages = Math.max(1, (int) Math.ceil(allJobMatches.size() / (double) PAGE_SIZE));
         int safePage = Math.min(currentPage, totalPages);
@@ -43,6 +53,11 @@ public class JobsServlet extends HttpServlet {
         List<TaJobView> pageItems = allJobMatches.isEmpty() ? List.of() : allJobMatches.subList(fromIndex, toIndex);
 
         request.setAttribute("profile", profile);
+        request.setAttribute("availableSkills", jobService.getAvailableSkills());
+        request.setAttribute("keyword", keyword == null ? "" : keyword.trim());
+        request.setAttribute("selectedFilterSkills", selectedFilterSkills);
+        request.setAttribute("selectedFilterSkillLookup", buildSelectedSkillLookup(selectedFilterSkills));
+        request.setAttribute("hasActiveFilters", (keyword != null && !keyword.isBlank()) || !selectedFilterSkills.isEmpty());
         request.setAttribute("jobMatches", pageItems);
         request.setAttribute("currentPage", safePage);
         request.setAttribute("totalPages", totalPages);
@@ -50,6 +65,7 @@ public class JobsServlet extends HttpServlet {
         request.setAttribute("hasNextPage", safePage < totalPages);
         request.setAttribute("previousPage", safePage - 1);
         request.setAttribute("nextPage", safePage + 1);
+        request.setAttribute("paginationQuery", buildPaginationQuery(keyword, selectedFilterSkills));
         request.getRequestDispatcher(ViewPaths.TA_JOBS).forward(request, response);
     }
 
@@ -63,5 +79,28 @@ public class JobsServlet extends HttpServlet {
         } catch (NumberFormatException exception) {
             return 1;
         }
+    }
+
+    private Map<String, Boolean> buildSelectedSkillLookup(List<String> selectedFilterSkills) {
+        Map<String, Boolean> lookup = new LinkedHashMap<>();
+        for (String skill : selectedFilterSkills) {
+            lookup.put(skill, Boolean.TRUE);
+        }
+        return lookup;
+    }
+
+    private String buildPaginationQuery(String keyword, List<String> selectedFilterSkills) {
+        List<String> parts = new ArrayList<>();
+        if (keyword != null && !keyword.isBlank()) {
+            parts.add("keyword=" + encode(keyword.trim()));
+        }
+        for (String skill : selectedFilterSkills) {
+            parts.add("filterSkills=" + encode(skill));
+        }
+        return parts.isEmpty() ? "" : "&" + String.join("&", parts);
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

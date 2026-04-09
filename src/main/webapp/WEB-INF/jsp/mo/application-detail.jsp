@@ -59,6 +59,9 @@
                     </div>
                 </div>
                 <p>${applicationView.job.description}</p>
+                <c:if test="${applicationView.jobClosed}">
+                    <div class="warning">This job is closed to new TA applications, but existing submitted applications can still be reviewed here.</div>
+                </c:if>
                 <div class="job-section">
                     <strong>Required skills</strong>
                     <div class="tag-list">
@@ -92,6 +95,28 @@
     </c:choose>
 
     <div class="actions-row">
+        <c:if test="${applicationView.hasCv}">
+            <a class="button-secondary" href="${pageContext.request.contextPath}/mo/applications/cv/download?applicationId=${applicationView.application.id}">Download CV</a>
+        </c:if>
+        <c:if test="${applicationView.canShortlist}">
+            <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/applications/status"
+                  data-confirm="Mark this candidate as SHORTLISTED for the current job?">
+                <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                <input type="hidden" name="status" value="SHORTLISTED">
+                <button class="button-primary" type="submit">Shortlist</button>
+            </form>
+        </c:if>
+        <c:if test="${applicationView.canReject}">
+            <form class="inline-form" method="post" action="${pageContext.request.contextPath}/mo/applications/status"
+                  data-confirm="Mark this candidate as REJECTED for the current job?">
+                <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                <input type="hidden" name="status" value="REJECTED">
+                <button class="button-warning" type="submit">Reject</button>
+            </form>
+        </c:if>
+        <c:if test="${applicationView.reviewLocked}">
+            <span class="tag tag-muted">Review locked after TA withdrawal</span>
+        </c:if>
         <a class="button-secondary" href="${pageContext.request.contextPath}/mo/applications">Back to Applications</a>
     </div>
 </div>

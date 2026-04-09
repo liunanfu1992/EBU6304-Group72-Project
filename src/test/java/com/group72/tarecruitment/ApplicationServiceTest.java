@@ -161,6 +161,21 @@ class ApplicationServiceTest {
         assertTrue(service.findOwnedApplicationView(views.get(0).getApplication().getId(), "mo-1").isPresent());
     }
 
+    @Test
+    void moApplicationViewShouldLockReviewActionsAfterTaWithdrawal() {
+        ApplicationService service = buildService();
+
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(applyResult.isSuccess());
+        assertTrue(service.withdrawApplication(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        MoApplicationView view = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
+
+        assertTrue(view.isReviewLocked());
+        assertFalse(view.getCanShortlist());
+        assertFalse(view.getCanReject());
+    }
+
     private ApplicationService buildService() {
         UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
         JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));

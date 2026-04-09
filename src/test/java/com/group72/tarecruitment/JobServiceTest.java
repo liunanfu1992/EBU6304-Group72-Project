@@ -378,4 +378,91 @@ class JobServiceTest {
         assertTrue(service.findTaJobView(openJob.getJob().getId(), profile).isPresent());
         assertTrue(service.findTaJobView(draftJob.getJob().getId(), profile).isEmpty());
     }
+
+    @Test
+    void taJobViewsShouldSupportKeywordFilteringAcrossJobFields() {
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs-filter-keyword.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles-filter-keyword.json"));
+        UserRepository userRepository = new UserRepository(tempDir.resolve("users-filter-keyword.json"));
+        JobService service = new JobService(jobRepository, profileRepository, userRepository);
+
+        userRepository.save(new User("mo-1", "dr-smith", "", Role.MO, "smith@example.com"));
+
+        assertTrue(service.createJob(
+                "Programming in Rust",
+                "CS110L",
+                "Support systems programming labs",
+                new String[]{"Communication"},
+                "",
+                "6",
+                "mo-1"
+        ).isSuccess());
+        assertTrue(service.createJob(
+                "Machine Learning TA",
+                "CS220",
+                "Support ML practical sessions",
+                new String[]{"Machine Learning", "Python"},
+                "",
+                "8",
+                "mo-1"
+        ).isSuccess());
+
+        Profile profile = new Profile();
+        profile.setSelectedSkills(List.of("Communication"));
+
+        List<TaJobView> moduleCodeMatches = service.listTaJobViews(profile, "CS110", List.of());
+        List<TaJobView> ownerMatches = service.listTaJobViews(profile, "smith@example.com", List.of());
+        List<TaJobView> skillMatches = service.listTaJobViews(profile, "machine learning", List.of());
+
+        assertEquals(List.of("Programming in Rust"), moduleCodeMatches.stream().map(view -> view.getJob().getTitle()).toList());
+        assertEquals(2, ownerMatches.size());
+        assertEquals(List.of("Machine Learning TA"), skillMatches.stream().map(view -> view.getJob().getTitle()).toList());
+    }
+
+    @Test
+    void taJobViewsShouldSupportMultiSkillFiltering() {
+        JobService service = new JobService(
+                new JobRepository(tempDir.resolve("jobs-filter-skills.json")),
+                new ProfileRepository(tempDir.resolve("profiles-filter-skills.json"))
+        );
+
+        assertTrue(service.createJob(
+                "Programming TA",
+                "CS101",
+                "Support labs",
+                new String[]{"Java", "Communication"},
+                "",
+                "8",
+                "mo-1"
+        ).isSuccess());
+        assertTrue(service.createJob(
+                "Algorithms TA",
+                "CS202",
+                "Guide algorithm tutorials",
+                new String[]{"Java", "Algorithms"},
+                "",
+                "6",
+                "mo-1"
+        ).isSuccess());
+        assertTrue(service.createJob(
+                "Presentation TA",
+                "CS303",
+                "Coach presentations",
+                new String[]{"Presentation"},
+                "",
+                "4",
+                "mo-1"
+        ).isSuccess());
+
+        Profile profile = new Profile();
+        profile.setSelectedSkills(List.of("Java", "Communication", "Algorithms"));
+
+        List<TaJobView> javaOnlyMatches = service.listTaJobViews(profile, "", List.of("Java"));
+        List<TaJobView> javaCommunicationMatches = service.listTaJobViews(profile, "", List.of("Java", "Communication"));
+        List<TaJobView> communicationPythonMatches = service.listTaJobViews(profile, "", List.of("Communication", "Python"));
+
+        assertEquals(List.of("Algorithms TA", "Programming TA"), javaOnlyMatches.stream().map(view -> view.getJob().getTitle()).toList());
+        assertEquals(List.of("Programming TA"), javaCommunicationMatches.stream().map(view -> view.getJob().getTitle()).toList());
+        assertTrue(communicationPythonMatches.isEmpty());
+    }
 }

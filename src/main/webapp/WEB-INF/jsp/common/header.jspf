@@ -194,6 +194,12 @@
             gap: 16px;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
+        .summary-grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            margin: 18px 0;
+        }
         .metric-card,
         .dashboard-link-card {
             display: block;
@@ -216,6 +222,22 @@
             display: block;
             font-size: 1.15rem;
             margin-bottom: 6px;
+        }
+        .summary-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 247, 240, 0.96));
+            border: 1px solid var(--line);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        }
+        .summary-card strong {
+            display: block;
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+        .summary-card span {
+            color: var(--ink-soft);
+            font-size: 0.92rem;
         }
         .metric-label,
         .dashboard-link-card span {
@@ -319,12 +341,27 @@
             margin-top: 8px;
         }
         .tag-list-inline {
-            display: inline;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
         }
         .helper {
             color: var(--ink-soft);
             font-size: 0.95rem;
             margin: 8px 0 16px;
+        }
+        .helper-list {
+            margin: 12px 0 0;
+            padding-left: 18px;
+            color: var(--ink-soft);
+        }
+        .context-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0 6px;
         }
         .section-label {
             display: flex;
@@ -376,6 +413,15 @@
         .job-list {
             display: grid;
             gap: 16px;
+        }
+        .empty-state {
+            padding: 22px;
+            border-radius: 18px;
+            border: 1px dashed rgba(15, 76, 92, 0.24);
+            background: rgba(255, 255, 255, 0.58);
+        }
+        .empty-state p {
+            margin-top: 0;
         }
         .job-card {
             border: 1px solid var(--line);
@@ -506,6 +552,24 @@
             padding: 18px;
             background: rgba(255, 255, 255, 0.78);
         }
+        .detail-grid,
+        .status-guide {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .detail-panel {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.72);
+        }
+        .detail-panel h4 {
+            margin: 0 0 10px;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
         .footer-note {
             text-align: center;
             color: var(--ink-soft);
@@ -527,6 +591,11 @@
             .job-card-head {
                 flex-direction: column;
             }
+            .summary-grid,
+            .detail-grid,
+            .status-guide {
+                grid-template-columns: 1fr;
+            }
             .actions-row {
                 flex-direction: column;
                 align-items: stretch;
@@ -538,7 +607,7 @@
 <header>
     <div class="site-header">
         <div class="brand-lockup">
-            <span class="brand-tag">Sprint 1 Demo</span>
+            <span class="brand-tag">Sprint 2 Demo</span>
             <h1>TA Recruitment System</h1>
             <span class="brand-meta">BUPT International School teaching assistant workflow</span>
         </div>

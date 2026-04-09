@@ -32,6 +32,7 @@ public class MoApplicationDetailServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         String applicationId = request.getParameter("applicationId");
+        String jobId = request.getParameter("jobId");
 
         var applicationView = applicationService.findOwnedApplicationView(applicationId, currentUser.getId());
         if (applicationView.isEmpty()) {
@@ -40,6 +41,9 @@ public class MoApplicationDetailServlet extends HttpServlet {
         }
 
         request.setAttribute("applicationView", applicationView.get());
+        request.setAttribute("returnJobId", jobId == null ? "" : jobId);
+        request.setAttribute("backToListHref", request.getContextPath() + "/mo/applications"
+                + ((jobId == null || jobId.isBlank()) ? "" : "?jobId=" + jobId));
         request.getRequestDispatcher(ViewPaths.MO_APPLICATION_DETAIL).forward(request, response);
     }
 }

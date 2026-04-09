@@ -63,6 +63,23 @@
                 toggle.textContent = showing ? "Show password" : "Hide password";
             });
         });
+
+        document.querySelectorAll("form[data-auto-filter]").forEach(function (form) {
+            var debounceTimer = null;
+            form.querySelectorAll("[data-auto-submit='immediate']").forEach(function (field) {
+                field.addEventListener("change", function () {
+                    form.requestSubmit();
+                });
+            });
+            form.querySelectorAll("[data-auto-submit='debounce']").forEach(function (field) {
+                field.addEventListener("input", function () {
+                    window.clearTimeout(debounceTimer);
+                    debounceTimer = window.setTimeout(function () {
+                        form.requestSubmit();
+                    }, 350);
+                });
+            });
+        });
     });
 </script>
 <div class="footer-note">Sprint 1 prototype built with Servlet, JSP, and local JSON persistence.</div>

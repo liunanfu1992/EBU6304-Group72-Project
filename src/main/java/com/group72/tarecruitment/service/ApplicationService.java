@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -265,14 +266,21 @@ public class ApplicationService {
             return new ApplicationActionResult(false, application.get(), List.of("Interview location or meeting link is required."));
         }
 
-        application.get().setInterviewStartEpochMillis(interviewStartEpochMillis);
-        application.get().setInterviewLocation(safeLocation);
-        application.get().setInterviewLink(safeLink);
-        application.get().setAttendanceConfirmed(false);
-        application.get().setAttendanceConfirmedAtEpochMillis(null);
-        application.get().setUpdatedAtEpochMillis(System.currentTimeMillis());
-        applicationRepository.save(application.get());
-        return new ApplicationActionResult(true, application.get(), List.of());
+        Application scheduledApplication = application.get();
+        boolean scheduleChanged = !Objects.equals(scheduledApplication.getInterviewStartEpochMillis(), interviewStartEpochMillis)
+                || !Objects.equals(safeTrim(scheduledApplication.getInterviewLocation()), safeLocation)
+                || !Objects.equals(safeTrim(scheduledApplication.getInterviewLink()), safeLink);
+
+        scheduledApplication.setInterviewStartEpochMillis(interviewStartEpochMillis);
+        scheduledApplication.setInterviewLocation(safeLocation);
+        scheduledApplication.setInterviewLink(safeLink);
+        if (scheduleChanged) {
+            scheduledApplication.setAttendanceConfirmed(false);
+            scheduledApplication.setAttendanceConfirmedAtEpochMillis(null);
+        }
+        scheduledApplication.setUpdatedAtEpochMillis(System.currentTimeMillis());
+        applicationRepository.save(scheduledApplication);
+        return new ApplicationActionResult(true, scheduledApplication, List.of());
     }
 
     public ApplicationActionResult confirmInterviewAttendance(String applicationId, String taUserId) {

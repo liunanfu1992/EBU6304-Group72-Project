@@ -18,6 +18,18 @@
     <c:if test="${param.reviewError eq 'invalid' or param.reviewError eq '1'}">
         <div class="error">The application status could not be updated. Please try again.</div>
     </c:if>
+    <c:if test="${param.interviewScheduled eq '1'}">
+        <div class="success">The interview schedule was saved for this shortlisted candidate.</div>
+    </c:if>
+    <c:if test="${not empty param.interviewError}">
+        <div class="error">The interview schedule could not be saved. ${param.interviewError}</div>
+    </c:if>
+    <c:if test="${param.outcomeRecorded eq '1'}">
+        <div class="success">The interview outcome and final decision were recorded.</div>
+    </c:if>
+    <c:if test="${not empty param.outcomeError}">
+        <div class="error">The interview outcome could not be recorded. ${param.outcomeError}</div>
+    </c:if>
 
     <div class="job-card-head">
         <div>
@@ -71,6 +83,83 @@
                     </div>
                 </div>
             </div>
+        </c:otherwise>
+    </c:choose>
+</div>
+
+<div class="card">
+    <h3 class="card-title">Interview Schedule</h3>
+    <p class="helper">Sprint 3 scheduling is available after the candidate has been shortlisted.</p>
+
+    <div class="detail-grid">
+        <div class="detail-panel">
+            <h4>Current Schedule</h4>
+            <p><strong>Time:</strong> ${applicationView.interviewStartDisplay}</p>
+            <p><strong>Location:</strong> ${applicationView.interviewLocationDisplay}</p>
+            <p><strong>Meeting Link:</strong> ${applicationView.interviewLinkDisplay}</p>
+            <p><strong>TA Attendance:</strong> ${applicationView.attendanceLabel}</p>
+        </div>
+
+        <div class="detail-panel">
+            <h4>Schedule or Update Interview</h4>
+            <c:choose>
+                <c:when test="${applicationView.canScheduleInterview}">
+                    <form method="post" action="${pageContext.request.contextPath}/mo/applications/interview/schedule"
+                          data-confirm="Save this interview schedule for the shortlisted candidate?">
+                        <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                        <input type="hidden" name="jobId" value="${returnJobId}">
+                        <label for="interviewStart">Date and time</label>
+                        <input id="interviewStart" type="datetime-local" name="interviewStart" required>
+
+                        <label for="interviewLocation">Location</label>
+                        <input id="interviewLocation" type="text" name="interviewLocation"
+                               value="${applicationView.application.interviewLocation}">
+
+                        <label for="interviewLink">Meeting link</label>
+                        <input id="interviewLink" type="url" name="interviewLink"
+                               value="${applicationView.application.interviewLink}">
+
+                        <button class="button-primary" type="submit">Save Interview</button>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <p class="muted">Interview scheduling is available only for shortlisted applications.</p>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 class="card-title">Interview Outcome</h3>
+    <p class="helper">Record final interview notes and move the application to the final decision stage.</p>
+    <c:choose>
+        <c:when test="${applicationView.canRecordOutcome}">
+            <form method="post" action="${pageContext.request.contextPath}/mo/applications/interview/outcome"
+                  data-confirm="Record this final interview outcome?">
+                <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+                <input type="hidden" name="jobId" value="${returnJobId}">
+
+                <label for="finalStatus">Final decision</label>
+                <select id="finalStatus" name="finalStatus" required>
+                    <option value="OFFERED">Offered</option>
+                    <option value="REJECTED">Rejected</option>
+                </select>
+
+                <label for="interviewOutcomeNotes">Outcome notes</label>
+                <textarea id="interviewOutcomeNotes" name="interviewOutcomeNotes" rows="4">${applicationView.application.interviewOutcomeNotes}</textarea>
+
+                <button class="button-primary" type="submit">Record Outcome</button>
+            </form>
+        </c:when>
+        <c:otherwise>
+            <c:if test="${not empty applicationView.application.interviewOutcomeNotes}">
+                <div class="detail-panel">
+                    <h4>Recorded Notes</h4>
+                    <p>${applicationView.application.interviewOutcomeNotes}</p>
+                </div>
+            </c:if>
+            <p class="muted">A scheduled interview is required before recording the final outcome.</p>
         </c:otherwise>
     </c:choose>
 </div>

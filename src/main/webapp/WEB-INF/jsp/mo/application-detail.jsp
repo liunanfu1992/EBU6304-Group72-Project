@@ -21,9 +21,23 @@
     <c:if test="${param.interviewScheduled eq '1'}">
         <div class="success">The interview schedule was saved for this shortlisted candidate.</div>
     </c:if>
-    <c:if test="${not empty param.interviewError}">
-        <div class="error">The interview schedule could not be saved. ${param.interviewError}</div>
-    </c:if>
+    <c:choose>
+        <c:when test="${param.interviewError eq 'status'}">
+            <div class="error">Only shortlisted applications can be scheduled for interview.</div>
+        </c:when>
+        <c:when test="${param.interviewError eq 'time'}">
+            <div class="error">Interview date and time are required.</div>
+        </c:when>
+        <c:when test="${param.interviewError eq 'location'}">
+            <div class="error">Add either an interview location or a meeting link.</div>
+        </c:when>
+        <c:when test="${param.interviewError eq 'missing'}">
+            <div class="error">The requested application record could not be found under your jobs.</div>
+        </c:when>
+        <c:when test="${not empty param.interviewError}">
+            <div class="error">The interview schedule could not be saved. Please try again.</div>
+        </c:when>
+    </c:choose>
     <c:if test="${param.outcomeRecorded eq '1'}">
         <div class="success">The interview outcome and final decision were recorded.</div>
     </c:if>
@@ -109,15 +123,16 @@
                         <input type="hidden" name="applicationId" value="${applicationView.application.id}">
                         <input type="hidden" name="jobId" value="${returnJobId}">
                         <label for="interviewStart">Date and time</label>
-                        <input id="interviewStart" type="datetime-local" name="interviewStart" required>
+                        <input id="interviewStart" type="datetime-local" name="interviewStart"
+                               value="${applicationView.interviewStartInputValue}" required>
 
                         <label for="interviewLocation">Location</label>
                         <input id="interviewLocation" type="text" name="interviewLocation"
-                               value="${applicationView.application.interviewLocation}">
+                               value="${applicationView.interviewLocationInputValue}">
 
                         <label for="interviewLink">Meeting link</label>
                         <input id="interviewLink" type="url" name="interviewLink"
-                               value="${applicationView.application.interviewLink}">
+                               value="${applicationView.interviewLinkInputValue}">
 
                         <button class="button-primary" type="submit">Save Interview</button>
                     </form>

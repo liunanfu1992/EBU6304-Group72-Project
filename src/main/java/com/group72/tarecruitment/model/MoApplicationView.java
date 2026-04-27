@@ -173,14 +173,33 @@ public class MoApplicationView {
         return interviewStart == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(interviewStart));
     }
 
+    public String getInterviewStartInputValue() {
+        Long interviewStart = application == null ? null : application.getInterviewStartEpochMillis();
+        return interviewStart == null
+                ? ""
+                : DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+                        .withZone(ZoneId.systemDefault())
+                        .format(Instant.ofEpochMilli(interviewStart));
+    }
+
     public String getInterviewLocationDisplay() {
         String location = application == null ? null : application.getInterviewLocation();
         return location == null || location.isBlank() ? "-" : location;
     }
 
+    public String getInterviewLocationInputValue() {
+        String location = application == null ? null : application.getInterviewLocation();
+        return location == null ? "" : location;
+    }
+
     public String getInterviewLinkDisplay() {
         String link = application == null ? null : application.getInterviewLink();
         return link == null || link.isBlank() ? "-" : link;
+    }
+
+    public String getInterviewLinkInputValue() {
+        String link = application == null ? null : application.getInterviewLink();
+        return link == null ? "" : link;
     }
 
     public String getAttendanceLabel() {

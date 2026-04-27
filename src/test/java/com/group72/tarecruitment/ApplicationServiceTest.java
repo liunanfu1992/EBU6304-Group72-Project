@@ -382,6 +382,66 @@ class ApplicationServiceTest {
         assertTrue(outcomeResult.getApplication().isFinalDecisionMade());
     }
 
+    @Test
+    void scheduleInterviewShouldPreserveAttendanceWhenScheduleIsUnchanged() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "https://example.com/interview"
+        ).isSuccess());
+        assertTrue(service.confirmInterviewAttendance(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        ApplicationActionResult unchangedScheduleResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "https://example.com/interview"
+        );
+
+        assertTrue(unchangedScheduleResult.isSuccess());
+        assertTrue(unchangedScheduleResult.getApplication().isAttendanceConfirmed());
+    }
+
+    @Test
+    void scheduleInterviewShouldResetAttendanceWhenScheduleChanges() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "https://example.com/interview"
+        ).isSuccess());
+        assertTrue(service.confirmInterviewAttendance(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        ApplicationActionResult changedScheduleResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770003600000L,
+                "Room 102",
+                "https://example.com/interview"
+        );
+
+        assertTrue(changedScheduleResult.isSuccess());
+        assertFalse(changedScheduleResult.getApplication().isAttendanceConfirmed());
+    }
+
     private ApplicationService buildService() {
         UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
         JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));

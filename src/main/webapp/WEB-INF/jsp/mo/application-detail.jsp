@@ -123,15 +123,16 @@
                         <input type="hidden" name="applicationId" value="${applicationView.application.id}">
                         <input type="hidden" name="jobId" value="${returnJobId}">
                         <label for="interviewStart">Date and time</label>
-                        <input id="interviewStart" type="datetime-local" name="interviewStart" required>
+                        <input id="interviewStart" type="datetime-local" name="interviewStart"
+                               value="${applicationView.interviewStartInputValue}" required>
 
                         <label for="interviewLocation">Location</label>
                         <input id="interviewLocation" type="text" name="interviewLocation"
-                               value="${applicationView.application.interviewLocation}">
+                               value="${applicationView.interviewLocationInputValue}">
 
                         <label for="interviewLink">Meeting link</label>
                         <input id="interviewLink" type="url" name="interviewLink"
-                               value="${applicationView.application.interviewLink}">
+                               value="${applicationView.interviewLinkInputValue}">
 
                         <button class="button-primary" type="submit">Save Interview</button>
                     </form>

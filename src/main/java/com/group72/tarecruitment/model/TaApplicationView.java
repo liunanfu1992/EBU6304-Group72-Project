@@ -56,6 +56,9 @@ public class TaApplicationView {
         if (application.isWithdrawn()) {
             return "status-badge status-withdrawn";
         }
+        if (application.isOffered()) {
+            return "status-badge status-offered";
+        }
         return "status-badge";
     }
 
@@ -66,5 +69,42 @@ public class TaApplicationView {
 
     public boolean isWithdrawable() {
         return application != null && application.isPending();
+    }
+
+    public boolean hasInterviewSchedule() {
+        return application != null && application.hasInterviewSchedule();
+    }
+
+    public boolean getHasInterviewSchedule() {
+        return hasInterviewSchedule();
+    }
+
+    public String getInterviewStartDisplay() {
+        Long interviewStart = application == null ? null : application.getInterviewStartEpochMillis();
+        return interviewStart == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(interviewStart));
+    }
+
+    public String getInterviewLocationDisplay() {
+        String location = application == null ? null : application.getInterviewLocation();
+        return location == null || location.isBlank() ? "-" : location;
+    }
+
+    public String getInterviewLink() {
+        return application == null ? "" : application.getInterviewLink();
+    }
+
+    public boolean isAttendanceConfirmable() {
+        return application != null
+                && application.hasInterviewSchedule()
+                && application.isShortlisted()
+                && !application.isAttendanceConfirmed();
+    }
+
+    public boolean getAttendanceConfirmable() {
+        return isAttendanceConfirmable();
+    }
+
+    public String getAttendanceLabel() {
+        return application != null && application.isAttendanceConfirmed() ? "Confirmed" : "Not confirmed";
     }
 }

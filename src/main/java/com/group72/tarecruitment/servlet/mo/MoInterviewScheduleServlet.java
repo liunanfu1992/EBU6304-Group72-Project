@@ -49,7 +49,7 @@ public class MoInterviewScheduleServlet extends HttpServlet {
 
         String suffix = buildDetailSuffix(applicationId, jobId);
         response.sendRedirect(request.getContextPath() + "/mo/applications/view" + suffix
-                + (result.isSuccess() ? "&interviewScheduled=1" : "&interviewError=" + errorFlag(result)));
+                + (result.isSuccess() ? "&interviewScheduled=1" : "&interviewError=" + errorCode(result)));
     }
 
     private Long parseDateTime(String value) {
@@ -71,8 +71,20 @@ public class MoInterviewScheduleServlet extends HttpServlet {
         return suffix;
     }
 
-    private String errorFlag(ApplicationActionResult result) {
-        return encode(result.getErrors().isEmpty() ? "1" : result.getErrors().get(0));
+    private String errorCode(ApplicationActionResult result) {
+        if (result.getErrors().contains("Only shortlisted applications can be scheduled for interview.")) {
+            return "status";
+        }
+        if (result.getErrors().contains("Interview date and time are required.")) {
+            return "time";
+        }
+        if (result.getErrors().contains("Interview location or meeting link is required.")) {
+            return "location";
+        }
+        if (result.getErrors().contains("Application not found.")) {
+            return "missing";
+        }
+        return "1";
     }
 
     private String encode(String value) {

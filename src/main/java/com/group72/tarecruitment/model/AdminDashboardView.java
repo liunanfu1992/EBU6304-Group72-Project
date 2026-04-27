@@ -8,12 +8,14 @@ public class AdminDashboardView {
     private final List<Job> jobs;
     private final List<AdminPathStatusView> pathStatuses;
     private final List<AdminCvFileView> cvFiles;
+    private final List<AdminWorkloadView> workloadRows;
     private final int taUserCount;
     private final int moUserCount;
     private final int adminUserCount;
     private final int openJobCount;
     private final int profilesWithCvCount;
     private final long totalCvBytes;
+    private final int totalAssignedHours;
 
     public AdminDashboardView(
             List<User> users,
@@ -21,24 +23,28 @@ public class AdminDashboardView {
             List<Job> jobs,
             List<AdminPathStatusView> pathStatuses,
             List<AdminCvFileView> cvFiles,
+            List<AdminWorkloadView> workloadRows,
             int taUserCount,
             int moUserCount,
             int adminUserCount,
             int openJobCount,
             int profilesWithCvCount,
-            long totalCvBytes
+            long totalCvBytes,
+            int totalAssignedHours
     ) {
         this.users = List.copyOf(users);
         this.profiles = List.copyOf(profiles);
         this.jobs = List.copyOf(jobs);
         this.pathStatuses = List.copyOf(pathStatuses);
         this.cvFiles = List.copyOf(cvFiles);
+        this.workloadRows = List.copyOf(workloadRows);
         this.taUserCount = taUserCount;
         this.moUserCount = moUserCount;
         this.adminUserCount = adminUserCount;
         this.openJobCount = openJobCount;
         this.profilesWithCvCount = profilesWithCvCount;
         this.totalCvBytes = totalCvBytes;
+        this.totalAssignedHours = totalAssignedHours;
     }
 
     public List<User> getUsers() {
@@ -61,6 +67,10 @@ public class AdminDashboardView {
         return cvFiles;
     }
 
+    public List<AdminWorkloadView> getWorkloadRows() {
+        return workloadRows;
+    }
+
     public int getUserCount() {
         return users.size();
     }
@@ -75,6 +85,10 @@ public class AdminDashboardView {
 
     public int getCvFileCount() {
         return cvFiles.size();
+    }
+
+    public int getOfferedTaCount() {
+        return workloadRows.size();
     }
 
     public int getTaUserCount() {
@@ -99,6 +113,10 @@ public class AdminDashboardView {
 
     public long getTotalCvBytes() {
         return totalCvBytes;
+    }
+
+    public int getTotalAssignedHours() {
+        return totalAssignedHours;
     }
 
     public String getTotalCvSizeDisplay() {

@@ -534,6 +534,10 @@
             background: var(--info-bg);
             color: var(--info-ink);
         }
+        .status-offered {
+            background: var(--success-bg);
+            color: var(--success-ink);
+        }
         .status-rejected {
             background: var(--error-bg);
             color: var(--error-ink);
@@ -607,7 +611,7 @@
 <header>
     <div class="site-header">
         <div class="brand-lockup">
-            <span class="brand-tag">Sprint 2 Demo</span>
+            <span class="brand-tag">Sprint 3 Demo</span>
             <h1>TA Recruitment System</h1>
             <span class="brand-meta">BUPT International School teaching assistant workflow</span>
         </div>
@@ -622,6 +626,7 @@
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/cv">CV</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/jobs">Jobs</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/ta/applications">Applications</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ta/interviews">Interviews</a>
                     </c:when>
                     <c:when test="${sessionScope.currentUser.role == 'MO'}">
                         <a class="nav-link" href="${pageContext.request.contextPath}/mo/jobs">My Jobs</a>

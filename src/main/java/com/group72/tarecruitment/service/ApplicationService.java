@@ -58,6 +58,13 @@ public class ApplicationService {
                 .toList();
     }
 
+    public List<TaApplicationView> listTaInterviewViews(String taUserId) {
+        return listApplicationsByTaUser(taUserId).stream()
+                .filter(Application::hasInterviewSchedule)
+                .map(this::toTaApplicationView)
+                .toList();
+    }
+
     public List<Application> listApplicationsForJob(String jobId, String moUserId) {
         Optional<Job> job = findOwnedJob(jobId, moUserId);
         if (job.isEmpty()) {
@@ -233,6 +240,92 @@ public class ApplicationService {
         return new ApplicationActionResult(true, application.get(), List.of());
     }
 
+    public ApplicationActionResult scheduleInterview(String applicationId, String moUserId, Long interviewStartEpochMillis,
+                                                     String interviewLocation, String interviewLink) {
+        Optional<User> moUser = userRepository.findById(moUserId)
+                .filter(user -> user.getRole() == Role.MO);
+        if (moUser.isEmpty()) {
+            return new ApplicationActionResult(false, null, List.of("MO user not found."));
+        }
+
+        Optional<Application> application = findOwnedApplication(applicationId, moUserId);
+        if (application.isEmpty()) {
+            return new ApplicationActionResult(false, null, List.of("Application not found."));
+        }
+        if (!application.get().isShortlisted()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Only shortlisted applications can be scheduled for interview."));
+        }
+        if (interviewStartEpochMillis == null) {
+            return new ApplicationActionResult(false, application.get(), List.of("Interview date and time are required."));
+        }
+
+        String safeLocation = safeTrim(interviewLocation);
+        String safeLink = safeTrim(interviewLink);
+        if (safeLocation.isEmpty() && safeLink.isEmpty()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Interview location or meeting link is required."));
+        }
+
+        application.get().setInterviewStartEpochMillis(interviewStartEpochMillis);
+        application.get().setInterviewLocation(safeLocation);
+        application.get().setInterviewLink(safeLink);
+        application.get().setAttendanceConfirmed(false);
+        application.get().setAttendanceConfirmedAtEpochMillis(null);
+        application.get().setUpdatedAtEpochMillis(System.currentTimeMillis());
+        applicationRepository.save(application.get());
+        return new ApplicationActionResult(true, application.get(), List.of());
+    }
+
+    public ApplicationActionResult confirmInterviewAttendance(String applicationId, String taUserId) {
+        Optional<Application> application = findTaApplication(applicationId, taUserId);
+        if (application.isEmpty()) {
+            return new ApplicationActionResult(false, null, List.of("Application not found."));
+        }
+        if (!application.get().hasInterviewSchedule()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Interview has not been scheduled."));
+        }
+        if (!application.get().isShortlisted()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Attendance can only be confirmed for shortlisted interviews."));
+        }
+
+        application.get().setAttendanceConfirmed(true);
+        application.get().setAttendanceConfirmedAtEpochMillis(System.currentTimeMillis());
+        application.get().setUpdatedAtEpochMillis(System.currentTimeMillis());
+        applicationRepository.save(application.get());
+        return new ApplicationActionResult(true, application.get(), List.of());
+    }
+
+    public ApplicationActionResult recordInterviewOutcome(String applicationId, String moUserId, String finalStatus,
+                                                          String interviewOutcomeNotes) {
+        Optional<User> moUser = userRepository.findById(moUserId)
+                .filter(user -> user.getRole() == Role.MO);
+        if (moUser.isEmpty()) {
+            return new ApplicationActionResult(false, null, List.of("MO user not found."));
+        }
+
+        Optional<Application> application = findOwnedApplication(applicationId, moUserId);
+        if (application.isEmpty()) {
+            return new ApplicationActionResult(false, null, List.of("Application not found."));
+        }
+        if (!application.get().hasInterviewSchedule()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Interview must be scheduled before recording an outcome."));
+        }
+
+        String normalizedStatus = normalizeFinalDecisionStatus(finalStatus);
+        if (normalizedStatus == null) {
+            return new ApplicationActionResult(false, application.get(), List.of("Invalid final decision status."));
+        }
+        if (application.get().isWithdrawn()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Withdrawn applications can no longer be processed."));
+        }
+
+        application.get().setStatus(normalizedStatus);
+        application.get().setInterviewOutcomeNotes(safeTrim(interviewOutcomeNotes));
+        application.get().setFinalDecisionAtEpochMillis(System.currentTimeMillis());
+        application.get().setUpdatedAtEpochMillis(System.currentTimeMillis());
+        applicationRepository.save(application.get());
+        return new ApplicationActionResult(true, application.get(), List.of());
+    }
+
     private Optional<Job> findOwnedJob(String jobId, String moUserId) {
         return jobRepository.findById(jobId)
                 .filter(job -> moUserId != null && moUserId.equals(job.getMoUserId()));
@@ -317,5 +410,22 @@ public class ApplicationService {
             return Application.STATUS_REJECTED;
         }
         return null;
+    }
+
+    private String normalizeFinalDecisionStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        if (Application.STATUS_OFFERED.equalsIgnoreCase(status.trim())) {
+            return Application.STATUS_OFFERED;
+        }
+        if (Application.STATUS_REJECTED.equalsIgnoreCase(status.trim())) {
+            return Application.STATUS_REJECTED;
+        }
+        return null;
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? "" : value.trim();
     }
 }

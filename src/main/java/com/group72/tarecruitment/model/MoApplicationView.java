@@ -133,6 +133,9 @@ public class MoApplicationView {
         if (application.isWithdrawn()) {
             return "status-badge status-withdrawn";
         }
+        if (application.isOffered()) {
+            return "status-badge status-offered";
+        }
         return "status-badge";
     }
 
@@ -142,19 +145,57 @@ public class MoApplicationView {
     }
 
     public boolean isReviewLocked() {
-        return application == null || application.isWithdrawn();
+        return application == null || application.isWithdrawn() || application.isOffered();
     }
 
     public boolean getCanShortlist() {
-        return application != null && !application.isWithdrawn() && !application.isShortlisted();
+        return application != null && !application.isWithdrawn() && !application.isOffered() && !application.isShortlisted();
     }
 
     public boolean getCanReject() {
-        return application != null && !application.isWithdrawn() && !application.isRejected();
+        return application != null && !application.isWithdrawn() && !application.isOffered() && !application.isRejected();
     }
 
     public boolean isJobClosed() {
         return job != null && job.isClosed();
+    }
+
+    public boolean hasInterviewSchedule() {
+        return application != null && application.hasInterviewSchedule();
+    }
+
+    public boolean getHasInterviewSchedule() {
+        return hasInterviewSchedule();
+    }
+
+    public String getInterviewStartDisplay() {
+        Long interviewStart = application == null ? null : application.getInterviewStartEpochMillis();
+        return interviewStart == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(interviewStart));
+    }
+
+    public String getInterviewLocationDisplay() {
+        String location = application == null ? null : application.getInterviewLocation();
+        return location == null || location.isBlank() ? "-" : location;
+    }
+
+    public String getInterviewLinkDisplay() {
+        String link = application == null ? null : application.getInterviewLink();
+        return link == null || link.isBlank() ? "-" : link;
+    }
+
+    public String getAttendanceLabel() {
+        return application != null && application.isAttendanceConfirmed() ? "Confirmed" : "Not confirmed";
+    }
+
+    public boolean getCanScheduleInterview() {
+        return application != null && application.isShortlisted();
+    }
+
+    public boolean getCanRecordOutcome() {
+        return application != null
+                && application.hasInterviewSchedule()
+                && !application.isWithdrawn()
+                && !application.isFinalDecisionMade();
     }
 
     private boolean containsSkillIgnoreCase(List<String> skills, String candidate) {

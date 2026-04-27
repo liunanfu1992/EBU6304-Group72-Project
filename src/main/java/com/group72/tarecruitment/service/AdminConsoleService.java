@@ -1,13 +1,16 @@
 package com.group72.tarecruitment.service;
 
 import com.group72.tarecruitment.config.AppConfig;
+import com.group72.tarecruitment.model.AdminWorkloadView;
 import com.group72.tarecruitment.model.AdminCvFileView;
 import com.group72.tarecruitment.model.AdminDashboardView;
 import com.group72.tarecruitment.model.AdminPathStatusView;
+import com.group72.tarecruitment.model.Application;
 import com.group72.tarecruitment.model.Job;
 import com.group72.tarecruitment.model.Profile;
 import com.group72.tarecruitment.model.Role;
 import com.group72.tarecruitment.model.User;
+import com.group72.tarecruitment.repository.json.ApplicationRepository;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
@@ -27,6 +30,7 @@ public class AdminConsoleService {
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
     private final JobRepository jobRepository;
+    private final ApplicationRepository applicationRepository;
     private final Path appHome;
     private final Path dataDir;
     private final Path storageDir;
@@ -34,19 +38,22 @@ public class AdminConsoleService {
     private final Path usersFile;
     private final Path profilesFile;
     private final Path jobsFile;
+    private final Path applicationsFile;
 
     public AdminConsoleService() {
         this(
                 new UserRepository(),
                 new ProfileRepository(),
                 new JobRepository(),
+                new ApplicationRepository(),
                 AppConfig.getAppHome(),
                 AppConfig.getDataDir(),
                 AppConfig.getStorageDir(),
                 AppConfig.getCvStorageDir(),
                 AppConfig.resolveDataFile("users.json"),
                 AppConfig.resolveDataFile("profiles.json"),
-                AppConfig.resolveDataFile("jobs.json")
+                AppConfig.resolveDataFile("jobs.json"),
+                AppConfig.resolveDataFile("applications.json")
         );
     }
 
@@ -54,17 +61,20 @@ public class AdminConsoleService {
             UserRepository userRepository,
             ProfileRepository profileRepository,
             JobRepository jobRepository,
+            ApplicationRepository applicationRepository,
             Path appHome,
             Path dataDir,
             Path storageDir,
             Path cvDir,
             Path usersFile,
             Path profilesFile,
-            Path jobsFile
+            Path jobsFile,
+            Path applicationsFile
     ) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.jobRepository = jobRepository;
+        this.applicationRepository = applicationRepository;
         this.appHome = appHome;
         this.dataDir = dataDir;
         this.storageDir = storageDir;
@@ -72,6 +82,7 @@ public class AdminConsoleService {
         this.usersFile = usersFile;
         this.profilesFile = profilesFile;
         this.jobsFile = jobsFile;
+        this.applicationsFile = applicationsFile;
     }
 
     public AdminDashboardView buildDashboard() {
@@ -87,7 +98,12 @@ public class AdminConsoleService {
 
         Map<String, Profile> profilesByUserId = profiles.stream()
                 .collect(Collectors.toMap(Profile::getUserId, profile -> profile, (left, right) -> left));
+        Map<String, User> usersById = users.stream()
+                .collect(Collectors.toMap(User::getId, user -> user, (left, right) -> left));
+        Map<String, Job> jobsById = jobs.stream()
+                .collect(Collectors.toMap(Job::getId, job -> job, (left, right) -> left));
         List<AdminCvFileView> cvFiles = listCvFiles(profilesByUserId);
+        List<AdminWorkloadView> workloadRows = buildWorkloadRows(usersById, profilesByUserId, jobsById);
 
         int taUserCount = (int) users.stream().filter(user -> user.getRole() == Role.TA).count();
         int moUserCount = (int) users.stream().filter(user -> user.getRole() == Role.MO).count();
@@ -95,6 +111,7 @@ public class AdminConsoleService {
         int openJobCount = (int) jobs.stream().filter(Job::isOpen).count();
         int profilesWithCvCount = (int) profiles.stream().filter(Profile::hasCv).count();
         long totalCvBytes = cvFiles.stream().mapToLong(AdminCvFileView::getSizeBytes).sum();
+        int totalAssignedHours = workloadRows.stream().mapToInt(AdminWorkloadView::getTotalAssignedHours).sum();
 
         return new AdminDashboardView(
                 users,
@@ -107,16 +124,55 @@ public class AdminConsoleService {
                         buildPathStatus("CV Directory", cvDir),
                         buildPathStatus("users.json", usersFile),
                         buildPathStatus("profiles.json", profilesFile),
-                        buildPathStatus("jobs.json", jobsFile)
+                        buildPathStatus("jobs.json", jobsFile),
+                        buildPathStatus("applications.json", applicationsFile)
                 ),
                 cvFiles,
+                workloadRows,
                 taUserCount,
                 moUserCount,
                 adminUserCount,
                 openJobCount,
                 profilesWithCvCount,
-                totalCvBytes
+                totalCvBytes,
+                totalAssignedHours
         );
+    }
+
+    private List<AdminWorkloadView> buildWorkloadRows(
+            Map<String, User> usersById,
+            Map<String, Profile> profilesByUserId,
+            Map<String, Job> jobsById
+    ) {
+        Map<String, List<Job>> offeredJobsByTa = applicationRepository.findAll().stream()
+                .filter(Application::isOffered)
+                .collect(Collectors.groupingBy(
+                        Application::getTaUserId,
+                        Collectors.mapping(application -> jobsById.get(application.getJobId()), Collectors.toList())
+                ));
+
+        return offeredJobsByTa.entrySet().stream()
+                .map(entry -> toWorkloadView(entry.getKey(), entry.getValue(), usersById, profilesByUserId))
+                .sorted(Comparator.comparing(AdminWorkloadView::getDisplayName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private AdminWorkloadView toWorkloadView(
+            String taUserId,
+            List<Job> offeredJobs,
+            Map<String, User> usersById,
+            Map<String, Profile> profilesByUserId
+    ) {
+        List<Job> safeJobs = offeredJobs.stream()
+                .filter(job -> job != null)
+                .sorted(Comparator.comparing(job -> safeLower(job.getTitle())))
+                .toList();
+        int totalHours = safeJobs.stream()
+                .map(Job::getWeeklyHours)
+                .filter(hours -> hours != null)
+                .mapToInt(Integer::intValue)
+                .sum();
+        return new AdminWorkloadView(usersById.get(taUserId), profilesByUserId.get(taUserId), safeJobs, totalHours);
     }
 
     private List<AdminCvFileView> listCvFiles(Map<String, Profile> profilesByUserId) {

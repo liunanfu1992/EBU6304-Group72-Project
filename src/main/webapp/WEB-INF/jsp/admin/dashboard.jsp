@@ -22,6 +22,10 @@
         <span class="metric-value">${dashboard.cvFileCount}</span>
         <span class="metric-label">CV files (${dashboard.totalCvSizeDisplay})</span>
     </div>
+    <div class="metric-card">
+        <span class="metric-value">${dashboard.totalAssignedHours}</span>
+        <span class="metric-label">Assigned hours across ${dashboard.offeredTaCount} offered TA records</span>
+    </div>
 </div>
 
 <div class="card">
@@ -38,6 +42,38 @@
             </div>
         </c:forEach>
     </div>
+</div>
+
+<div class="card">
+    <h3 class="card-title">Offered TA Workload</h3>
+    <p class="helper">Sprint 3 workload totals are calculated from offered applications and each job's weekly hours.</p>
+    <c:choose>
+        <c:when test="${empty dashboard.workloadRows}">
+            <p class="muted">No offered TA workload records are available yet.</p>
+        </c:when>
+        <c:otherwise>
+            <table>
+                <thead>
+                <tr>
+                    <th>TA</th>
+                    <th>Email</th>
+                    <th>Offered Jobs</th>
+                    <th>Total Assigned Hours</th>
+                </tr>
+                </thead>
+                <tbody>
+                <c:forEach items="${dashboard.workloadRows}" var="workload">
+                    <tr>
+                        <td>${workload.displayName}</td>
+                        <td>${workload.email}</td>
+                        <td>${workload.offeredJobCount}</td>
+                        <td>${workload.totalAssignedHours}</td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <div class="card">

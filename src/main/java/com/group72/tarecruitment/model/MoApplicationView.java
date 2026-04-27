@@ -187,9 +187,19 @@ public class MoApplicationView {
         return location == null || location.isBlank() ? "-" : location;
     }
 
+    public String getInterviewLocationInputValue() {
+        String location = application == null ? null : application.getInterviewLocation();
+        return location == null ? "" : location;
+    }
+
     public String getInterviewLinkDisplay() {
         String link = application == null ? null : application.getInterviewLink();
         return link == null || link.isBlank() ? "-" : link;
+    }
+
+    public String getInterviewLinkInputValue() {
+        String link = application == null ? null : application.getInterviewLink();
+        return link == null ? "" : link;
     }
 
     public String getAttendanceLabel() {

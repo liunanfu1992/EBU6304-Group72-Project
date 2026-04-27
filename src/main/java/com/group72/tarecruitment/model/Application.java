@@ -9,6 +9,7 @@ public class Application {
     public static final String STATUS_WITHDRAWN = "WITHDRAWN";
     public static final String STATUS_SHORTLISTED = "SHORTLISTED";
     public static final String STATUS_REJECTED = "REJECTED";
+    public static final String STATUS_OFFERED = "OFFERED";
 
     private String id;
     private String taUserId;
@@ -16,6 +17,13 @@ public class Application {
     private String status;
     private Long createdAtEpochMillis;
     private Long updatedAtEpochMillis;
+    private Long interviewStartEpochMillis;
+    private String interviewLocation;
+    private String interviewLink;
+    private Boolean attendanceConfirmed;
+    private Long attendanceConfirmedAtEpochMillis;
+    private String interviewOutcomeNotes;
+    private Long finalDecisionAtEpochMillis;
 
     public Application() {
     }
@@ -84,6 +92,62 @@ public class Application {
         this.updatedAtEpochMillis = updatedAtEpochMillis;
     }
 
+    public Long getInterviewStartEpochMillis() {
+        return interviewStartEpochMillis;
+    }
+
+    public void setInterviewStartEpochMillis(Long interviewStartEpochMillis) {
+        this.interviewStartEpochMillis = interviewStartEpochMillis;
+    }
+
+    public String getInterviewLocation() {
+        return interviewLocation;
+    }
+
+    public void setInterviewLocation(String interviewLocation) {
+        this.interviewLocation = interviewLocation;
+    }
+
+    public String getInterviewLink() {
+        return interviewLink;
+    }
+
+    public void setInterviewLink(String interviewLink) {
+        this.interviewLink = interviewLink;
+    }
+
+    public Boolean getAttendanceConfirmed() {
+        return attendanceConfirmed;
+    }
+
+    public void setAttendanceConfirmed(Boolean attendanceConfirmed) {
+        this.attendanceConfirmed = attendanceConfirmed;
+    }
+
+    public Long getAttendanceConfirmedAtEpochMillis() {
+        return attendanceConfirmedAtEpochMillis;
+    }
+
+    public void setAttendanceConfirmedAtEpochMillis(Long attendanceConfirmedAtEpochMillis) {
+        this.attendanceConfirmedAtEpochMillis = attendanceConfirmedAtEpochMillis;
+    }
+
+    public String getInterviewOutcomeNotes() {
+        return interviewOutcomeNotes;
+    }
+
+    public void setInterviewOutcomeNotes(String interviewOutcomeNotes) {
+        this.interviewOutcomeNotes = interviewOutcomeNotes;
+    }
+
+    public Long getFinalDecisionAtEpochMillis() {
+        return finalDecisionAtEpochMillis;
+    }
+
+    public void setFinalDecisionAtEpochMillis(Long finalDecisionAtEpochMillis) {
+        this.finalDecisionAtEpochMillis = finalDecisionAtEpochMillis;
+    }
+
     @JsonIgnore
     public boolean isPending() {
         return STATUS_PENDING.equalsIgnoreCase(status);
@@ -102,5 +166,24 @@ public class Application {
     @JsonIgnore
     public boolean isRejected() {
         return STATUS_REJECTED.equalsIgnoreCase(status);
+    }
+
+    @JsonIgnore
+    public boolean isOffered() {
+        return STATUS_OFFERED.equalsIgnoreCase(status);
+    }
+
+    @JsonIgnore
+    public boolean hasInterviewSchedule() {
+        return interviewStartEpochMillis != null;
+    }
+
+    public boolean isAttendanceConfirmed() {
+        return Boolean.TRUE.equals(attendanceConfirmed);
+    }
+
+    @JsonIgnore
+    public boolean isFinalDecisionMade() {
+        return isOffered() || isRejected();
     }
 }

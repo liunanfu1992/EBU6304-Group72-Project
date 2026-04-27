@@ -272,6 +272,116 @@ class ApplicationServiceTest {
         assertFalse(view.isReviewLocked());
     }
 
+    @Test
+    void scheduleInterviewShouldRequireShortlistedOwnedApplication() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+
+        ApplicationActionResult pendingScheduleResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                ""
+        );
+        assertFalse(pendingScheduleResult.isSuccess());
+        assertTrue(pendingScheduleResult.getErrors().contains("Only shortlisted applications can be scheduled for interview."));
+
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+
+        ApplicationActionResult scheduleResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "https://example.com/interview"
+        );
+
+        assertTrue(scheduleResult.isSuccess());
+        assertTrue(scheduleResult.getApplication().hasInterviewSchedule());
+        assertEquals("Room 101", scheduleResult.getApplication().getInterviewLocation());
+        assertEquals(List.of("Open Job"), service.listTaInterviewViews("ta-1").stream()
+                .map(view -> view.getJob().getTitle())
+                .toList());
+    }
+
+    @Test
+    void confirmInterviewAttendanceShouldRequireTaOwnershipAndScheduledShortlist() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                ""
+        ).isSuccess());
+
+        ApplicationActionResult unauthorizedResult = service.confirmInterviewAttendance(
+                applyResult.getApplication().getId(),
+                "ta-2"
+        );
+        ApplicationActionResult confirmResult = service.confirmInterviewAttendance(
+                applyResult.getApplication().getId(),
+                "ta-1"
+        );
+
+        assertFalse(unauthorizedResult.isSuccess());
+        assertTrue(unauthorizedResult.getErrors().contains("Application not found."));
+        assertTrue(confirmResult.isSuccess());
+        assertTrue(confirmResult.getApplication().isAttendanceConfirmed());
+        assertTrue(service.findTaApplication(applyResult.getApplication().getId(), "ta-1").orElseThrow().isAttendanceConfirmed());
+    }
+
+    @Test
+    void recordInterviewOutcomeShouldRequireScheduledInterviewAndSetFinalDecision() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+
+        ApplicationActionResult earlyOutcomeResult = service.recordInterviewOutcome(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_OFFERED,
+                "Strong interview."
+        );
+        assertFalse(earlyOutcomeResult.isSuccess());
+        assertTrue(earlyOutcomeResult.getErrors().contains("Interview must be scheduled before recording an outcome."));
+
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                ""
+        ).isSuccess());
+
+        ApplicationActionResult outcomeResult = service.recordInterviewOutcome(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_OFFERED,
+                "Strong interview."
+        );
+
+        assertTrue(outcomeResult.isSuccess());
+        assertEquals(Application.STATUS_OFFERED, outcomeResult.getApplication().getStatus());
+        assertEquals("Strong interview.", outcomeResult.getApplication().getInterviewOutcomeNotes());
+        assertTrue(outcomeResult.getApplication().isFinalDecisionMade());
+    }
+
     private ApplicationService buildService() {
         UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
         JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs.json"));

@@ -47,6 +47,7 @@ public class TaApplicationsServlet extends HttpServlet {
         summary.put("Shortlisted", 0);
         summary.put("Rejected", 0);
         summary.put("Withdrawn", 0);
+        summary.put("Offered", 0);
 
         for (TaApplicationView applicationView : applications) {
             Application application = applicationView.getApplication();
@@ -61,6 +62,8 @@ public class TaApplicationsServlet extends HttpServlet {
                 summary.put("Rejected", summary.get("Rejected") + 1);
             } else if (application.isWithdrawn()) {
                 summary.put("Withdrawn", summary.get("Withdrawn") + 1);
+            } else if (application.isOffered()) {
+                summary.put("Offered", summary.get("Offered") + 1);
             }
         }
 

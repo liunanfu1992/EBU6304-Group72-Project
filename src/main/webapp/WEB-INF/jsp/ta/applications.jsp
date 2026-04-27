@@ -47,6 +47,10 @@
             <span class="status-badge status-withdrawn">WITHDRAWN</span>
             <p class="muted">You cancelled the pending request before a review decision was made.</p>
         </div>
+        <div class="detail-panel">
+            <span class="status-badge status-offered">OFFERED</span>
+            <p class="muted">You have received a final offer after the interview stage.</p>
+        </div>
     </div>
 
     <c:choose>
@@ -83,6 +87,9 @@
 
                         <c:if test="${applicationView.job != null}">
                             <p>${applicationView.job.description}</p>
+                            <c:if test="${applicationView.hasInterviewSchedule}">
+                                <div class="success">Interview scheduled for ${applicationView.interviewStartDisplay}.</div>
+                            </c:if>
                             <div class="job-section">
                                 <strong>Required skills</strong>
                                 <div class="tag-list">

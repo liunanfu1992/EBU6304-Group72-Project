@@ -33,6 +33,9 @@ public class TaInterviewsServlet extends HttpServlet {
         User currentUser = (User) request.getSession().getAttribute("currentUser");
         List<TaApplicationView> interviews = applicationService.listTaInterviewViews(currentUser.getId());
         request.setAttribute("interviews", interviews);
+        request.setAttribute("interviewTotal", interviews.size());
+        request.setAttribute("interviewConfirmedCount", interviews.stream().filter(TaApplicationView::isAttendanceConfirmed).count());
+        request.setAttribute("interviewPendingCount", interviews.stream().filter(TaApplicationView::isAttendanceConfirmable).count());
         request.getRequestDispatcher(ViewPaths.TA_INTERVIEWS).forward(request, response);
     }
 }

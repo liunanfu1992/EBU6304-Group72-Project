@@ -343,6 +343,39 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void taInterviewViewsShouldExposeAttendanceVisibilityState() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "https://example.com/interview"
+        ).isSuccess());
+
+        TaApplicationView pendingView = service.listTaInterviewViews("ta-1").get(0);
+        assertTrue(pendingView.isAttendanceConfirmable());
+        assertFalse(pendingView.isAttendanceConfirmed());
+        assertEquals("Not confirmed", pendingView.getAttendanceLabel());
+        assertEquals("Open Job", pendingView.getJobTitleDisplay());
+        assertEquals("CS101", pendingView.getModuleCodeDisplay());
+        assertTrue(pendingView.hasInterviewLink());
+
+        assertTrue(service.confirmInterviewAttendance(applyResult.getApplication().getId(), "ta-1").isSuccess());
+
+        TaApplicationView confirmedView = service.listTaInterviewViews("ta-1").get(0);
+        assertFalse(confirmedView.isAttendanceConfirmable());
+        assertTrue(confirmedView.isAttendanceConfirmed());
+        assertEquals("Confirmed", confirmedView.getAttendanceLabel());
+    }
+
+    @Test
     void recordInterviewOutcomeShouldRequireScheduledInterviewAndSetFinalDecision() {
         ApplicationService service = buildService();
         ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");

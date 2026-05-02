@@ -89,8 +89,25 @@ public class TaApplicationView {
         return location == null || location.isBlank() ? "-" : location;
     }
 
+    public boolean hasInterviewLocation() {
+        String location = application == null ? null : application.getInterviewLocation();
+        return location != null && !location.isBlank();
+    }
+
+    public boolean getHasInterviewLocation() {
+        return hasInterviewLocation();
+    }
+
     public String getInterviewLink() {
         return application == null ? "" : application.getInterviewLink();
+    }
+
+    public boolean hasInterviewLink() {
+        return getInterviewLink() != null && !getInterviewLink().isBlank();
+    }
+
+    public boolean getHasInterviewLink() {
+        return hasInterviewLink();
     }
 
     public boolean isAttendanceConfirmable() {
@@ -106,5 +123,25 @@ public class TaApplicationView {
 
     public String getAttendanceLabel() {
         return application != null && application.isAttendanceConfirmed() ? "Confirmed" : "Not confirmed";
+    }
+
+    public String getAttendanceTagClass() {
+        return application != null && application.isAttendanceConfirmed() ? "tag" : "tag tag-muted";
+    }
+
+    public boolean isAttendanceConfirmed() {
+        return application != null && application.isAttendanceConfirmed();
+    }
+
+    public boolean getAttendanceConfirmed() {
+        return isAttendanceConfirmed();
+    }
+
+    public String getModuleCodeDisplay() {
+        return job == null || job.getModuleCode() == null || job.getModuleCode().isBlank() ? "-" : job.getModuleCode();
+    }
+
+    public String getJobTitleDisplay() {
+        return job == null || job.getTitle() == null || job.getTitle().isBlank() ? "Job unavailable" : job.getTitle();
     }
 }

@@ -8,9 +8,35 @@
     <c:if test="${param.confirmed eq '1'}">
         <div class="success">Your interview attendance was confirmed.</div>
     </c:if>
-    <c:if test="${not empty param.confirmError}">
-        <div class="error">The interview confirmation could not be saved. ${param.confirmError}</div>
-    </c:if>
+    <c:choose>
+        <c:when test="${param.confirmError eq 'missing'}">
+            <div class="error">The interview record could not be found under your account.</div>
+        </c:when>
+        <c:when test="${param.confirmError eq 'unscheduled'}">
+            <div class="error">This application does not have a scheduled interview yet.</div>
+        </c:when>
+        <c:when test="${param.confirmError eq 'status'}">
+            <div class="error">Only shortlisted interview invitations can be confirmed.</div>
+        </c:when>
+        <c:when test="${not empty param.confirmError}">
+            <div class="error">The interview confirmation could not be saved. Please try again.</div>
+        </c:when>
+    </c:choose>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <strong>${interviewTotal}</strong>
+            <span>Scheduled Interviews</span>
+        </div>
+        <div class="summary-card">
+            <strong>${interviewPendingCount}</strong>
+            <span>Need Confirmation</span>
+        </div>
+        <div class="summary-card">
+            <strong>${interviewConfirmedCount}</strong>
+            <span>Confirmed</span>
+        </div>
+    </div>
 
     <c:choose>
         <c:when test="${empty interviews}">
@@ -28,28 +54,40 @@
                     <div class="job-card">
                         <div class="job-card-head">
                             <div>
-                                <h3><c:out value="${applicationView.job == null ? 'Job unavailable' : applicationView.job.title}"/></h3>
+                                <h3><c:out value="${applicationView.jobTitleDisplay}"/></h3>
                                 <p class="muted">
-                                    <c:out value="${applicationView.job == null ? '-' : applicationView.job.moduleCode}"/>
+                                    <c:out value="${applicationView.moduleCodeDisplay}"/>
                                     |
                                     ${applicationView.interviewStartDisplay}
                                 </p>
-                                <p class="helper">Module Owner: ${applicationView.moduleOwnerDisplayName}</p>
+                                <p class="helper">
+                                    Module Owner: ${applicationView.moduleOwnerDisplayName}
+                                    <c:if test="${not empty applicationView.moduleOwnerEmail}">
+                                        | ${applicationView.moduleOwnerEmail}
+                                    </c:if>
+                                </p>
                             </div>
                             <span class="${applicationView.statusTagClass}">${applicationView.statusLabel}</span>
                         </div>
 
+                        <c:if test="${applicationView.attendanceConfirmable}">
+                            <div class="warning">This interview invitation is waiting for your attendance confirmation.</div>
+                        </c:if>
+
                         <div class="detail-grid">
                             <div class="detail-panel">
-                                <h4>Interview Location</h4>
-                                <p>${applicationView.interviewLocationDisplay}</p>
-                                <c:if test="${not empty applicationView.interviewLink}">
+                                <h4>Interview Arrangement</h4>
+                                <p><strong>Time:</strong> ${applicationView.interviewStartDisplay}</p>
+                                <p><strong>Location:</strong> ${applicationView.interviewLocationDisplay}</p>
+                                <c:if test="${applicationView.hasInterviewLink}">
                                     <a class="button-secondary" href="${applicationView.interviewLink}" target="_blank" rel="noopener">Open Meeting Link</a>
                                 </c:if>
                             </div>
                             <div class="detail-panel">
                                 <h4>Attendance</h4>
-                                <p>${applicationView.attendanceLabel}</p>
+                                <div class="tag-list">
+                                    <span class="${applicationView.attendanceTagClass}">${applicationView.attendanceLabel}</span>
+                                </div>
                                 <c:if test="${applicationView.attendanceConfirmable}">
                                     <form class="inline-form" method="post"
                                           action="${pageContext.request.contextPath}/ta/interviews/confirm"
@@ -57,6 +95,9 @@
                                         <input type="hidden" name="applicationId" value="${applicationView.application.id}">
                                         <button class="button-primary" type="submit">Confirm Attendance</button>
                                     </form>
+                                </c:if>
+                                <c:if test="${applicationView.attendanceConfirmed}">
+                                    <p class="muted">Your attendance has been confirmed for this schedule.</p>
                                 </c:if>
                             </div>
                         </div>

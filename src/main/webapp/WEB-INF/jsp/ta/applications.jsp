@@ -88,7 +88,10 @@
                         <c:if test="${applicationView.job != null}">
                             <p>${applicationView.job.description}</p>
                             <c:if test="${applicationView.hasInterviewSchedule}">
-                                <div class="success">Interview scheduled for ${applicationView.interviewStartDisplay}.</div>
+                                <div class="success">
+                                    Interview scheduled for ${applicationView.interviewStartDisplay}.
+                                    <a href="${pageContext.request.contextPath}/ta/interviews">Review interview details</a>
+                                </div>
                             </c:if>
                             <div class="job-section">
                                 <strong>Required skills</strong>

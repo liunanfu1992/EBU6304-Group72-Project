@@ -7,8 +7,6 @@ import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
 import com.group72.tarecruitment.service.ApplicationService;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -39,11 +37,19 @@ public class TaInterviewConfirmServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/ta/interviews?confirmError="
-                + encode(result.getErrors().isEmpty() ? "1" : result.getErrors().get(0)));
+        response.sendRedirect(request.getContextPath() + "/ta/interviews?confirmError=" + errorCode(result));
     }
 
-    private String encode(String value) {
-        return value == null ? "" : URLEncoder.encode(value, StandardCharsets.UTF_8);
+    private String errorCode(ApplicationActionResult result) {
+        if (result.getErrors().contains("Application not found.")) {
+            return "missing";
+        }
+        if (result.getErrors().contains("Interview has not been scheduled.")) {
+            return "unscheduled";
+        }
+        if (result.getErrors().contains("Attendance can only be confirmed for shortlisted interviews.")) {
+            return "status";
+        }
+        return "1";
     }
 }

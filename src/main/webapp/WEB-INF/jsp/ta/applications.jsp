@@ -93,6 +93,12 @@
                                     <a href="${pageContext.request.contextPath}/ta/interviews">Review interview details</a>
                                 </div>
                             </c:if>
+                            <c:if test="${applicationView.finalDecisionRecorded}">
+                                <div class="success">
+                                    Final decision: ${applicationView.finalDecisionLabel}.
+                                    Interview notes: <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/>
+                                </div>
+                            </c:if>
                             <div class="job-section">
                                 <strong>Required skills</strong>
                                 <div class="tag-list">

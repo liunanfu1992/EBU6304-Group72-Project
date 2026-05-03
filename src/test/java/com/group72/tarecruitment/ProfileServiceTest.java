@@ -62,4 +62,16 @@ class ProfileServiceTest {
         assertEquals(List.of("Communication"), result.getProfile().getSelectedSkills());
         assertEquals(List.of("Mentoring"), result.getProfile().getCustomSkills());
     }
+
+    @Test
+    void getOrCreateProfileShouldPrefillEmailFromUser() {
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles.json"));
+        ProfileService service = new ProfileService(profileRepository);
+        User user = new User("ta-3", "carol", "", Role.TA, "carol@example.com");
+
+        Profile profile = service.getOrCreateProfile(user);
+
+        assertEquals("carol@example.com", profile.getEmail());
+        assertEquals("ta-3", profile.getUserId());
+    }
 }

@@ -18,6 +18,9 @@
     <c:if test="${not empty error}">
         <div class="error">${error}</div>
     </c:if>
+    <c:if test="${param.registered eq '1'}">
+        <div class="success">Registration completed. You can now sign in with your new account.</div>
+    </c:if>
 
     <form method="post" action="${pageContext.request.contextPath}/login">
         <div class="form-grid">
@@ -37,6 +40,7 @@
 
         <div class="actions-row">
             <button type="submit">Sign In</button>
+            <a class="button-secondary" href="${pageContext.request.contextPath}/register">Create Account</a>
         </div>
     </form>
 </div>

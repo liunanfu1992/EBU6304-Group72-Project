@@ -2,6 +2,7 @@ package com.group72.tarecruitment.util;
 
 public final class ViewPaths {
     public static final String LOGIN = "/WEB-INF/jsp/auth/login.jsp";
+    public static final String REGISTER = "/WEB-INF/jsp/auth/register.jsp";
     public static final String TA_DASHBOARD = "/WEB-INF/jsp/ta/dashboard.jsp";
     public static final String TA_PROFILE = "/WEB-INF/jsp/ta/profile.jsp";
     public static final String TA_CV = "/WEB-INF/jsp/ta/cv.jsp";

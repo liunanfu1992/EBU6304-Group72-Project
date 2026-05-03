@@ -88,15 +88,18 @@
                         <c:if test="${applicationView.job != null}">
                             <p>${applicationView.job.description}</p>
                             <c:if test="${applicationView.hasInterviewSchedule}">
-                                <div class="success">
-                                    Interview scheduled for ${applicationView.interviewStartDisplay}.
-                                    <a href="${pageContext.request.contextPath}/ta/interviews">Review interview details</a>
+                                <div class="result-panel">
+                                    <strong>Interview scheduled</strong>
+                                    <span>${applicationView.interviewStartDisplay}</span>
+                                    <div class="actions-row">
+                                        <a class="button-secondary" href="${pageContext.request.contextPath}/ta/interviews">Review interview details</a>
+                                    </div>
                                 </div>
                             </c:if>
                             <c:if test="${applicationView.finalDecisionRecorded}">
-                                <div class="success">
-                                    Final decision: ${applicationView.finalDecisionLabel}.
-                                    Interview notes: <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/>
+                                <div class="result-panel">
+                                    <strong>Final decision: ${applicationView.finalDecisionLabel}</strong>
+                                    <span>Interview notes: <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></span>
                                 </div>
                             </c:if>
                             <div class="job-section">

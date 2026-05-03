@@ -5,7 +5,7 @@
         <div>
             <span class="eyebrow">Access Portal</span>
             <h2 class="card-title">Login</h2>
-            <p class="card-subtitle">Use a seeded demo account to enter the Sprint 1 workflow and test role-based pages.</p>
+            <p class="card-subtitle">Use a seeded demo account to test the Sprint 3 TA, MO, and Admin workflow.</p>
         </div>
         <div class="metrics-row">
             <div class="metric-card">

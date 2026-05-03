@@ -20,7 +20,7 @@
     </a>
     <a class="dashboard-link-card" href="${pageContext.request.contextPath}/ta/applications">
         <strong>Track My Applications</strong>
-        <span>Review submitted applications and follow the shared Sprint 2 application lifecycle.</span>
+        <span>Follow application review, interview scheduling, attendance, and final decisions.</span>
     </a>
 </div>
 <%@ include file="../common/footer.jspf" %>

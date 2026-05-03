@@ -41,9 +41,29 @@
     <c:if test="${param.outcomeRecorded eq '1'}">
         <div class="success">The interview outcome and final decision were recorded.</div>
     </c:if>
-    <c:if test="${not empty param.outcomeError}">
-        <div class="error">The interview outcome could not be recorded. ${param.outcomeError}</div>
-    </c:if>
+    <c:choose>
+        <c:when test="${param.outcomeError eq 'missing'}">
+            <div class="error">The requested application record could not be found under your jobs.</div>
+        </c:when>
+        <c:when test="${param.outcomeError eq 'unscheduled'}">
+            <div class="error">Schedule an interview before recording the final outcome.</div>
+        </c:when>
+        <c:when test="${param.outcomeError eq 'status'}">
+            <div class="error">Only shortlisted interview records can receive final decisions.</div>
+        </c:when>
+        <c:when test="${param.outcomeError eq 'decision'}">
+            <div class="error">Select either Offered or Rejected as the final decision.</div>
+        </c:when>
+        <c:when test="${param.outcomeError eq 'withdrawn'}">
+            <div class="error">This application was withdrawn by the TA and can no longer be processed.</div>
+        </c:when>
+        <c:when test="${param.outcomeError eq 'locked'}">
+            <div class="error">The final interview decision has already been recorded and is locked.</div>
+        </c:when>
+        <c:when test="${not empty param.outcomeError}">
+            <div class="error">The interview outcome could not be recorded. Please try again.</div>
+        </c:when>
+    </c:choose>
 
     <div class="job-card-head">
         <div>
@@ -148,6 +168,15 @@
 <div class="card">
     <h3 class="card-title">Interview Outcome</h3>
     <p class="helper">Record final interview notes and move the application to the final decision stage.</p>
+    <div class="detail-grid">
+        <div class="detail-panel">
+            <h4>Current Final Decision</h4>
+            <p><strong>Decision:</strong> ${applicationView.finalDecisionLabel}</p>
+            <p><strong>Recorded:</strong> ${applicationView.finalDecisionAtDisplay}</p>
+            <p><strong>Notes:</strong> <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></p>
+        </div>
+        <div class="detail-panel">
+            <h4>Outcome Action</h4>
     <c:choose>
         <c:when test="${applicationView.canRecordOutcome}">
             <form method="post" action="${pageContext.request.contextPath}/mo/applications/interview/outcome"
@@ -162,21 +191,24 @@
                 </select>
 
                 <label for="interviewOutcomeNotes">Outcome notes</label>
-                <textarea id="interviewOutcomeNotes" name="interviewOutcomeNotes" rows="4">${applicationView.application.interviewOutcomeNotes}</textarea>
+                <textarea id="interviewOutcomeNotes" name="interviewOutcomeNotes" rows="4"><c:out value="${applicationView.application.interviewOutcomeNotes}"/></textarea>
 
                 <button class="button-primary" type="submit">Record Outcome</button>
             </form>
         </c:when>
         <c:otherwise>
-            <c:if test="${not empty applicationView.application.interviewOutcomeNotes}">
-                <div class="detail-panel">
-                    <h4>Recorded Notes</h4>
-                    <p>${applicationView.application.interviewOutcomeNotes}</p>
-                </div>
-            </c:if>
-            <p class="muted">A scheduled interview is required before recording the final outcome.</p>
+            <c:choose>
+                <c:when test="${applicationView.finalDecisionRecorded}">
+                    <p class="muted">This final decision has been recorded and is locked.</p>
+                </c:when>
+                <c:otherwise>
+                    <p class="muted">A shortlisted application with a scheduled interview is required before recording the final outcome.</p>
+                </c:otherwise>
+            </c:choose>
         </c:otherwise>
     </c:choose>
+        </div>
+    </div>
 </div>
 
 <div class="card">

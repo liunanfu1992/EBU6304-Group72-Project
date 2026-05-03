@@ -80,7 +80,8 @@
                                 <p><strong>Time:</strong> ${applicationView.interviewStartDisplay}</p>
                                 <p><strong>Location:</strong> ${applicationView.interviewLocationDisplay}</p>
                                 <c:if test="${applicationView.hasInterviewLink}">
-                                    <a class="button-secondary" href="${applicationView.interviewLink}" target="_blank" rel="noopener">Open Meeting Link</a>
+                                    <a class="button-secondary" href="<c:out value="${applicationView.interviewLink}"/>"
+                                       target="_blank" rel="noopener">Open Meeting Link</a>
                                 </c:if>
                             </div>
                             <div class="detail-panel">

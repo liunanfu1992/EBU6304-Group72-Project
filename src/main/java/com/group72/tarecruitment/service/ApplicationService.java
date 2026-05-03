@@ -13,6 +13,7 @@ import com.group72.tarecruitment.repository.json.ApplicationRepository;
 import com.group72.tarecruitment.repository.json.JobRepository;
 import com.group72.tarecruitment.repository.json.ProfileRepository;
 import com.group72.tarecruitment.repository.json.UserRepository;
+import com.group72.tarecruitment.util.InterviewLinkPolicy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -262,6 +263,9 @@ public class ApplicationService {
 
         String safeLocation = safeTrim(interviewLocation);
         String safeLink = safeTrim(interviewLink);
+        if (!InterviewLinkPolicy.isBlankOrSafe(safeLink)) {
+            return new ApplicationActionResult(false, application.get(), List.of("Meeting link must use http or https."));
+        }
         if (safeLocation.isEmpty() && safeLink.isEmpty()) {
             return new ApplicationActionResult(false, application.get(), List.of("Interview location or meeting link is required."));
         }

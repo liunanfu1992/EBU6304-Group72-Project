@@ -26,6 +26,10 @@
         <span class="metric-value">${dashboard.totalAssignedHours}</span>
         <span class="metric-label">Assigned hours across ${dashboard.offeredTaCount} offered TA records</span>
     </div>
+    <div class="metric-card">
+        <span class="metric-value">${dashboard.averageAssignedHours}</span>
+        <span class="metric-label">Average hours per offered TA</span>
+    </div>
 </div>
 
 <div class="card">
@@ -47,6 +51,11 @@
 <div class="card">
     <h3 class="card-title">Offered TA Workload</h3>
     <p class="helper">Sprint 3 workload totals are calculated from offered applications and each job's weekly hours.</p>
+    <div class="context-bar">
+        <span class="tag">Light: ${dashboard.lightLoadTaCount}</span>
+        <span class="tag">Balanced: ${dashboard.balancedLoadTaCount}</span>
+        <span class="tag">High: ${dashboard.highLoadTaCount}</span>
+    </div>
     <c:choose>
         <c:when test="${empty dashboard.workloadRows}">
             <p class="muted">No offered TA workload records are available yet.</p>
@@ -59,6 +68,8 @@
                     <th>Email</th>
                     <th>Offered Jobs</th>
                     <th>Total Assigned Hours</th>
+                    <th>Load Band</th>
+                    <th>Assigned Job Detail</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,6 +79,8 @@
                         <td>${workload.email}</td>
                         <td>${workload.offeredJobCount}</td>
                         <td>${workload.totalAssignedHours}</td>
+                        <td><span class="${workload.loadBandTagClass}">${workload.loadBandLabel}</span></td>
+                        <td><c:out value="${workload.assignedJobSummary}"/></td>
                     </tr>
                 </c:forEach>
                 </tbody>

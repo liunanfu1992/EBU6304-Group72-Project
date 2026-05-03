@@ -16,7 +16,7 @@
     </a>
     <a class="dashboard-link-card" href="${pageContext.request.contextPath}/mo/applications">
         <strong>Review Applications</strong>
-        <span>Open the Sprint 2 review workspace for applicants across your posted jobs.</span>
+        <span>Shortlist applicants, schedule interviews, and record final decisions.</span>
     </a>
 </div>
 <%@ include file="../common/footer.jspf" %>

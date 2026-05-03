@@ -2,7 +2,7 @@
 <div class="card">
     <span class="eyebrow">Admin Console</span>
     <h2 class="card-title">Admin Dashboard</h2>
-    <p class="card-subtitle">Sprint 1 admin work centers on local data storage, seeded accounts, record visibility, and secure read-only monitoring.</p>
+    <p class="card-subtitle">Monitor Sprint 3 data health, offered TA workload, stored records, and CV files from one read-only console.</p>
 </div>
 
 <div class="metrics-row">
@@ -56,6 +56,7 @@
         <span class="tag">Balanced: ${dashboard.balancedLoadTaCount}</span>
         <span class="tag">High: ${dashboard.highLoadTaCount}</span>
     </div>
+    <p class="table-note">Load band helps admins spot over-assigned TAs before final deployment.</p>
     <c:choose>
         <c:when test="${empty dashboard.workloadRows}">
             <p class="muted">No offered TA workload records are available yet.</p>

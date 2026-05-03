@@ -2,6 +2,20 @@
 <%@ include file="../common/header.jspf" %>
 <div class="card">
     <span class="eyebrow">Applicant Detail</span>
+    <div class="workflow-strip">
+        <div class="workflow-step">
+            <strong>1. Review candidate</strong>
+            <span>Inspect profile, CV, skills, and application status.</span>
+        </div>
+        <div class="workflow-step">
+            <strong>2. Schedule interview</strong>
+            <span>Add time plus either a room or a safe meeting link.</span>
+        </div>
+        <div class="workflow-step">
+            <strong>3. Record outcome</strong>
+            <span>Lock the final Offered or Rejected decision after interview.</span>
+        </div>
+    </div>
 
     <c:if test="${param.reviewUpdated eq 'shortlisted'}">
         <div class="success">The application status was updated to SHORTLISTED.</div>
@@ -138,6 +152,7 @@
             <h4>Schedule or Update Interview</h4>
             <c:choose>
                 <c:when test="${applicationView.canScheduleInterview}">
+                    <p class="helper">Changing the schedule will ask the TA to confirm attendance again.</p>
                     <form method="post" action="${pageContext.request.contextPath}/mo/applications/interview/schedule"
                           data-confirm="Save this interview schedule for the shortlisted candidate?">
                         <input type="hidden" name="applicationId" value="${applicationView.application.id}">
@@ -158,7 +173,7 @@
                     </form>
                 </c:when>
                 <c:otherwise>
-                    <p class="muted">Interview scheduling is available only for shortlisted applications.</p>
+                    <p class="muted">Interview scheduling is available only before the final decision is locked.</p>
                 </c:otherwise>
             </c:choose>
         </div>
@@ -171,9 +186,11 @@
     <div class="detail-grid">
         <div class="detail-panel">
             <h4>Current Final Decision</h4>
-            <p><strong>Decision:</strong> ${applicationView.finalDecisionLabel}</p>
-            <p><strong>Recorded:</strong> ${applicationView.finalDecisionAtDisplay}</p>
-            <p><strong>Notes:</strong> <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></p>
+            <div class="result-panel">
+                <strong>${applicationView.finalDecisionLabel}</strong>
+                <span>Recorded: ${applicationView.finalDecisionAtDisplay}</span>
+                <p><strong>Notes:</strong> <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></p>
+            </div>
         </div>
         <div class="detail-panel">
             <h4>Outcome Action</h4>
@@ -281,7 +298,7 @@
             </form>
         </c:if>
         <c:if test="${applicationView.reviewLocked}">
-            <span class="tag tag-muted">Review locked after TA withdrawal</span>
+            <span class="tag tag-muted">Review locked for this application</span>
         </c:if>
         <a class="button-secondary" href="${backToListHref}">Back to Applications</a>
     </div>

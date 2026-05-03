@@ -363,6 +363,43 @@
             gap: 10px;
             margin: 14px 0 6px;
         }
+        .workflow-strip {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin: 18px 0;
+        }
+        .workflow-step {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+        .workflow-step strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .workflow-step span {
+            color: var(--ink-soft);
+            font-size: 0.9rem;
+        }
+        .result-panel {
+            border: 1px solid rgba(22, 163, 74, 0.18);
+            border-radius: 16px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(220, 252, 231, 0.72), rgba(255, 255, 255, 0.76));
+            margin: 12px 0;
+        }
+        .result-panel strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--success-ink);
+        }
+        .table-note {
+            color: var(--ink-soft);
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
         .section-label {
             display: flex;
             justify-content: space-between;

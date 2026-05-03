@@ -45,7 +45,7 @@ public class MoInterviewOutcomeServlet extends HttpServlet {
 
         String suffix = buildDetailSuffix(applicationId, jobId);
         response.sendRedirect(request.getContextPath() + "/mo/applications/view" + suffix
-                + (result.isSuccess() ? "&outcomeRecorded=1" : "&outcomeError=" + errorFlag(result)));
+                + (result.isSuccess() ? "&outcomeRecorded=1" : "&outcomeError=" + errorCode(result)));
     }
 
     private String buildDetailSuffix(String applicationId, String jobId) {
@@ -56,8 +56,26 @@ public class MoInterviewOutcomeServlet extends HttpServlet {
         return suffix;
     }
 
-    private String errorFlag(ApplicationActionResult result) {
-        return encode(result.getErrors().isEmpty() ? "1" : result.getErrors().get(0));
+    private String errorCode(ApplicationActionResult result) {
+        if (result.getErrors().contains("Application not found.")) {
+            return "missing";
+        }
+        if (result.getErrors().contains("Interview must be scheduled before recording an outcome.")) {
+            return "unscheduled";
+        }
+        if (result.getErrors().contains("Only shortlisted interviews can receive final decisions.")) {
+            return "status";
+        }
+        if (result.getErrors().contains("Invalid final decision status.")) {
+            return "decision";
+        }
+        if (result.getErrors().contains("Withdrawn applications can no longer be processed.")) {
+            return "withdrawn";
+        }
+        if (result.getErrors().contains("Final decision has already been recorded.")) {
+            return "locked";
+        }
+        return "1";
     }
 
     private String encode(String value) {

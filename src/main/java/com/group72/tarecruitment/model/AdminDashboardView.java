@@ -119,6 +119,22 @@ public class AdminDashboardView {
         return totalAssignedHours;
     }
 
+    public int getHighLoadTaCount() {
+        return (int) workloadRows.stream().filter(AdminWorkloadView::isHighLoad).count();
+    }
+
+    public int getBalancedLoadTaCount() {
+        return (int) workloadRows.stream().filter(AdminWorkloadView::isBalancedLoad).count();
+    }
+
+    public int getLightLoadTaCount() {
+        return (int) workloadRows.stream().filter(AdminWorkloadView::isLightLoad).count();
+    }
+
+    public int getAverageAssignedHours() {
+        return workloadRows.isEmpty() ? 0 : Math.round((float) totalAssignedHours / workloadRows.size());
+    }
+
     public String getTotalCvSizeDisplay() {
         if (totalCvBytes < 1024) {
             return totalCvBytes + " B";

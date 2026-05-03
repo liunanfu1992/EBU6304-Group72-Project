@@ -5,6 +5,21 @@
     <h2 class="card-title">My Interview Schedule</h2>
     <p class="card-subtitle">Review interview arrangements linked to shortlisted applications and confirm attendance.</p>
 
+    <div class="workflow-strip">
+        <div class="workflow-step">
+            <strong>1. Review schedule</strong>
+            <span>Check time, location, and meeting link from the module owner.</span>
+        </div>
+        <div class="workflow-step">
+            <strong>2. Confirm attendance</strong>
+            <span>Confirm shortlisted interview invitations before the session.</span>
+        </div>
+        <div class="workflow-step">
+            <strong>3. Await outcome</strong>
+            <span>Final offers or rejections appear in your Applications page.</span>
+        </div>
+    </div>
+
     <c:if test="${param.confirmed eq '1'}">
         <div class="success">Your interview attendance was confirmed.</div>
     </c:if>
@@ -98,7 +113,10 @@
                                     </form>
                                 </c:if>
                                 <c:if test="${applicationView.attendanceConfirmed}">
-                                    <p class="muted">Your attendance has been confirmed for this schedule.</p>
+                                    <div class="result-panel">
+                                        <strong>Attendance confirmed</strong>
+                                        <span>Your confirmation has been saved for this interview schedule.</span>
+                                    </div>
                                 </c:if>
                             </div>
                         </div>

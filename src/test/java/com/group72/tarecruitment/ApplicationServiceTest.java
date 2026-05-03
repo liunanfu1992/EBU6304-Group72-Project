@@ -461,6 +461,71 @@ class ApplicationServiceTest {
         assertEquals(Application.STATUS_OFFERED, outcomeResult.getApplication().getStatus());
         assertEquals("Strong interview.", outcomeResult.getApplication().getInterviewOutcomeNotes());
         assertTrue(outcomeResult.getApplication().isFinalDecisionMade());
+
+        TaApplicationView taView = service.listTaApplicationViews("ta-1").get(0);
+        MoApplicationView moView = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
+        assertTrue(taView.getFinalDecisionRecorded());
+        assertEquals(Application.STATUS_OFFERED, taView.getFinalDecisionLabel());
+        assertEquals("Strong interview.", taView.getInterviewOutcomeNotesDisplay());
+        assertTrue(moView.getFinalDecisionRecorded());
+        assertEquals(Application.STATUS_OFFERED, moView.getFinalDecisionLabel());
+        assertEquals("Strong interview.", moView.getInterviewOutcomeNotesDisplay());
+    }
+
+    @Test
+    void recordInterviewOutcomeShouldLockFinalDecisionAndReviewActions() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+        assertTrue(service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                ""
+        ).isSuccess());
+        assertTrue(service.recordInterviewOutcome(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_REJECTED,
+                "Not selected after interview."
+        ).isSuccess());
+
+        ApplicationActionResult duplicateOutcomeResult = service.recordInterviewOutcome(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_OFFERED,
+                "Changed mind."
+        );
+        ApplicationActionResult statusUpdateResult = service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        );
+        ApplicationActionResult rescheduleResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770003600000L,
+                "Room 102",
+                ""
+        );
+        MoApplicationView lockedView = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
+
+        assertFalse(duplicateOutcomeResult.isSuccess());
+        assertTrue(duplicateOutcomeResult.getErrors().contains("Final decision has already been recorded."));
+        assertFalse(statusUpdateResult.isSuccess());
+        assertTrue(statusUpdateResult.getErrors().contains("Final decision has already been recorded."));
+        assertFalse(rescheduleResult.isSuccess());
+        assertTrue(rescheduleResult.getErrors().contains("Final decision has already been recorded."));
+        assertTrue(lockedView.isReviewLocked());
+        assertFalse(lockedView.getCanShortlist());
+        assertFalse(lockedView.getCanReject());
+        assertFalse(lockedView.getCanScheduleInterview());
+        assertFalse(lockedView.getCanRecordOutcome());
     }
 
     @Test

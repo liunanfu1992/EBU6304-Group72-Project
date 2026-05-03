@@ -184,6 +184,6 @@ public class Application {
 
     @JsonIgnore
     public boolean isFinalDecisionMade() {
-        return isOffered() || isRejected();
+        return finalDecisionAtEpochMillis != null || isOffered();
     }
 }

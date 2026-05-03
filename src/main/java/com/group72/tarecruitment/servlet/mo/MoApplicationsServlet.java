@@ -63,7 +63,7 @@ public class MoApplicationsServlet extends HttpServlet {
         request.setAttribute("jobs", jobs);
         request.setAttribute("availableMajors", applicationService.listMoApplicationMajors(currentUser.getId()));
         request.setAttribute("availableSkills", applicationService.listMoApplicationSkills(currentUser.getId()));
-        request.setAttribute("statusOptions", List.of("PENDING", "SHORTLISTED", "REJECTED", "WITHDRAWN"));
+        request.setAttribute("statusOptions", List.of("PENDING", "SHORTLISTED", "REJECTED", "WITHDRAWN", "OFFERED"));
         request.setAttribute("filterKeyword", criteria.getKeyword());
         request.setAttribute("filterMajor", criteria.getMajor());
         request.setAttribute("filterStatus", criteria.getStatus());
@@ -110,13 +110,16 @@ public class MoApplicationsServlet extends HttpServlet {
         summary.put("Shortlisted", 0);
         summary.put("Rejected", 0);
         summary.put("Withdrawn", 0);
+        summary.put("Offered", 0);
 
         for (MoApplicationView applicationView : applications) {
             Application application = applicationView.getApplication();
             if (application == null) {
                 continue;
             }
-            if (application.isPending()) {
+            if (application.isOffered()) {
+                summary.put("Offered", summary.get("Offered") + 1);
+            } else if (application.isPending()) {
                 summary.put("Pending", summary.get("Pending") + 1);
             } else if (application.isShortlisted()) {
                 summary.put("Shortlisted", summary.get("Shortlisted") + 1);

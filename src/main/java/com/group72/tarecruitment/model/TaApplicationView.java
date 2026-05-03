@@ -139,6 +139,19 @@ public class TaApplicationView {
         return isAttendanceConfirmed();
     }
 
+    public boolean getFinalDecisionRecorded() {
+        return application != null && application.isFinalDecisionMade();
+    }
+
+    public String getFinalDecisionLabel() {
+        return getFinalDecisionRecorded() ? getStatusLabel() : "-";
+    }
+
+    public String getInterviewOutcomeNotesDisplay() {
+        String notes = application == null ? null : application.getInterviewOutcomeNotes();
+        return notes == null || notes.isBlank() ? "-" : notes;
+    }
+
     public String getModuleCodeDisplay() {
         return job == null || job.getModuleCode() == null || job.getModuleCode().isBlank() ? "-" : job.getModuleCode();
     }

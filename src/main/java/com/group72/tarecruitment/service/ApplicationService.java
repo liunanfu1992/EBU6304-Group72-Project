@@ -232,6 +232,9 @@ public class ApplicationService {
         if (application.get().isWithdrawn()) {
             return new ApplicationActionResult(false, application.get(), List.of("Withdrawn applications can no longer be processed."));
         }
+        if (application.get().isFinalDecisionMade()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Final decision has already been recorded."));
+        }
         if (normalizedStatus.equalsIgnoreCase(application.get().getStatus())) {
             return new ApplicationActionResult(true, application.get(), List.of());
         }
@@ -253,6 +256,9 @@ public class ApplicationService {
         Optional<Application> application = findOwnedApplication(applicationId, moUserId);
         if (application.isEmpty()) {
             return new ApplicationActionResult(false, null, List.of("Application not found."));
+        }
+        if (application.get().isFinalDecisionMade()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Final decision has already been recorded."));
         }
         if (!application.get().isShortlisted()) {
             return new ApplicationActionResult(false, application.get(), List.of("Only shortlisted applications can be scheduled for interview."));
@@ -320,6 +326,12 @@ public class ApplicationService {
         }
         if (!application.get().hasInterviewSchedule()) {
             return new ApplicationActionResult(false, application.get(), List.of("Interview must be scheduled before recording an outcome."));
+        }
+        if (application.get().isFinalDecisionMade()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Final decision has already been recorded."));
+        }
+        if (!application.get().isShortlisted()) {
+            return new ApplicationActionResult(false, application.get(), List.of("Only shortlisted interviews can receive final decisions."));
         }
 
         String normalizedStatus = normalizeFinalDecisionStatus(finalStatus);

@@ -146,15 +146,15 @@ public class MoApplicationView {
     }
 
     public boolean isReviewLocked() {
-        return application == null || application.isWithdrawn() || application.isOffered();
+        return application == null || application.isWithdrawn() || application.isFinalDecisionMade();
     }
 
     public boolean getCanShortlist() {
-        return application != null && !application.isWithdrawn() && !application.isOffered() && !application.isShortlisted();
+        return application != null && !application.isWithdrawn() && !application.isFinalDecisionMade() && !application.isShortlisted();
     }
 
     public boolean getCanReject() {
-        return application != null && !application.isWithdrawn() && !application.isOffered() && !application.isRejected();
+        return application != null && !application.isWithdrawn() && !application.isFinalDecisionMade() && !application.isRejected();
     }
 
     public boolean isJobClosed() {
@@ -209,14 +209,33 @@ public class MoApplicationView {
     }
 
     public boolean getCanScheduleInterview() {
-        return application != null && application.isShortlisted();
+        return application != null && application.isShortlisted() && !application.isFinalDecisionMade();
     }
 
     public boolean getCanRecordOutcome() {
         return application != null
                 && application.hasInterviewSchedule()
+                && application.isShortlisted()
                 && !application.isWithdrawn()
                 && !application.isFinalDecisionMade();
+    }
+
+    public boolean getFinalDecisionRecorded() {
+        return application != null && application.isFinalDecisionMade();
+    }
+
+    public String getFinalDecisionLabel() {
+        return getFinalDecisionRecorded() ? getStatusLabel() : "-";
+    }
+
+    public String getFinalDecisionAtDisplay() {
+        Long finalDecisionAt = application == null ? null : application.getFinalDecisionAtEpochMillis();
+        return finalDecisionAt == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(finalDecisionAt));
+    }
+
+    public String getInterviewOutcomeNotesDisplay() {
+        String notes = application == null ? null : application.getInterviewOutcomeNotes();
+        return notes == null || notes.isBlank() ? "-" : notes;
     }
 
     private boolean containsSkillIgnoreCase(List<String> skills, String candidate) {

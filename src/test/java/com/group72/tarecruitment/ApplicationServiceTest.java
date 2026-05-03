@@ -310,6 +310,54 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void scheduleInterviewShouldRejectUnsafeMeetingLinks() {
+        ApplicationService service = buildService();
+        ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");
+        assertTrue(service.updateApplicationStatus(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                Application.STATUS_SHORTLISTED
+        ).isSuccess());
+
+        ApplicationActionResult unsafeLinkResult = service.scheduleInterview(
+                applyResult.getApplication().getId(),
+                "mo-1",
+                1770000000000L,
+                "Room 101",
+                "javascript:alert(1)"
+        );
+
+        assertFalse(unsafeLinkResult.isSuccess());
+        assertTrue(unsafeLinkResult.getErrors().contains("Meeting link must use http or https."));
+        assertFalse(service.findTaApplication(applyResult.getApplication().getId(), "ta-1").orElseThrow().hasInterviewSchedule());
+    }
+
+    @Test
+    void taInterviewViewsShouldHidePersistedUnsafeMeetingLinks() {
+        UserRepository userRepository = new UserRepository(tempDir.resolve("users-unsafe-link.json"));
+        JobRepository jobRepository = new JobRepository(tempDir.resolve("jobs-unsafe-link.json"));
+        ApplicationRepository applicationRepository = new ApplicationRepository(tempDir.resolve("applications-unsafe-link.json"));
+        ProfileRepository profileRepository = new ProfileRepository(tempDir.resolve("profiles-unsafe-link.json"));
+
+        userRepository.save(new User("ta-1", "ta-alice", "", Role.TA, "alice@example.com"));
+        userRepository.save(new User("mo-1", "mo-smith", "", Role.MO, "smith@example.com"));
+        jobRepository.save(new Job("job-1", "Open Job", "CS101", "Open job", List.of("Java"), 6, "mo-1", Job.STATUS_OPEN));
+
+        Application application = new Application("app-1", "ta-1", "job-1", Application.STATUS_SHORTLISTED, 1L, 1L);
+        application.setInterviewStartEpochMillis(1770000000000L);
+        application.setInterviewLocation("Room 101");
+        application.setInterviewLink("javascript:alert(1)");
+        applicationRepository.save(application);
+
+        ApplicationService service = new ApplicationService(applicationRepository, jobRepository, userRepository, profileRepository);
+
+        TaApplicationView view = service.listTaInterviewViews("ta-1").get(0);
+
+        assertFalse(view.hasInterviewLink());
+        assertEquals("", view.getInterviewLink());
+    }
+
+    @Test
     void confirmInterviewAttendanceShouldRequireTaOwnershipAndScheduledShortlist() {
         ApplicationService service = buildService();
         ApplicationActionResult applyResult = service.applyToJob("ta-1", "job-1");

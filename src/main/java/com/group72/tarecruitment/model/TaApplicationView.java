@@ -1,5 +1,6 @@
 package com.group72.tarecruitment.model;
 
+import com.group72.tarecruitment.util.InterviewLinkPolicy;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -99,7 +100,8 @@ public class TaApplicationView {
     }
 
     public String getInterviewLink() {
-        return application == null ? "" : application.getInterviewLink();
+        String link = application == null ? null : application.getInterviewLink();
+        return InterviewLinkPolicy.safeDisplayLink(link);
     }
 
     public boolean hasInterviewLink() {

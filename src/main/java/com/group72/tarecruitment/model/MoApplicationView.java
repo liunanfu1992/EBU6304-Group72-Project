@@ -1,5 +1,6 @@
 package com.group72.tarecruitment.model;
 
+import com.group72.tarecruitment.util.InterviewLinkPolicy;
 import com.group72.tarecruitment.util.SkillCatalog;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -194,7 +195,8 @@ public class MoApplicationView {
 
     public String getInterviewLinkDisplay() {
         String link = application == null ? null : application.getInterviewLink();
-        return link == null || link.isBlank() ? "-" : link;
+        String safeLink = InterviewLinkPolicy.safeDisplayLink(link);
+        return safeLink.isBlank() ? "-" : safeLink;
     }
 
     public String getInterviewLinkInputValue() {

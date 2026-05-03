@@ -145,7 +145,7 @@ public class AdminConsoleService {
             Map<String, Job> jobsById
     ) {
         Map<String, List<Job>> offeredJobsByTa = applicationRepository.findAll().stream()
-                .filter(Application::isOffered)
+                .filter(this::isValidOfferedWorkloadRecord)
                 .collect(Collectors.groupingBy(
                         Application::getTaUserId,
                         Collectors.mapping(application -> jobsById.get(application.getJobId()), Collectors.toList())
@@ -155,6 +155,15 @@ public class AdminConsoleService {
                 .map(entry -> toWorkloadView(entry.getKey(), entry.getValue(), usersById, profilesByUserId))
                 .sorted(Comparator.comparing(AdminWorkloadView::getDisplayName, String.CASE_INSENSITIVE_ORDER))
                 .toList();
+    }
+
+    private boolean isValidOfferedWorkloadRecord(Application application) {
+        return application != null
+                && application.isOffered()
+                && application.getTaUserId() != null
+                && !application.getTaUserId().isBlank()
+                && application.getJobId() != null
+                && !application.getJobId().isBlank();
     }
 
     private AdminWorkloadView toWorkloadView(

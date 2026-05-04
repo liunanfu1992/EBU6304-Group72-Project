@@ -466,6 +466,9 @@ class ApplicationServiceTest {
         MoApplicationView moView = service.findOwnedApplicationView(applyResult.getApplication().getId(), "mo-1").orElseThrow();
         assertTrue(taView.getFinalDecisionRecorded());
         assertEquals(Application.STATUS_OFFERED, taView.getFinalDecisionLabel());
+        assertEquals("You have received a final offer for this TA role.", taView.getFinalDecisionSummary());
+        assertEquals("result-panel", taView.getFinalDecisionPanelClass());
+        assertTrue(taView.getHasInterviewOutcomeNotes());
         assertEquals("Strong interview.", taView.getInterviewOutcomeNotesDisplay());
         assertTrue(moView.getFinalDecisionRecorded());
         assertEquals(Application.STATUS_OFFERED, moView.getFinalDecisionLabel());
@@ -586,6 +589,19 @@ class ApplicationServiceTest {
 
         assertTrue(changedScheduleResult.isSuccess());
         assertFalse(changedScheduleResult.getApplication().isAttendanceConfirmed());
+    }
+
+    @Test
+    void taApplicationViewShouldExplainRejectedFinalDecision() {
+        Application application = new Application("app-rejected", "ta-1", "job-1", Application.STATUS_REJECTED, 1L, 1L);
+        application.setFinalDecisionAtEpochMillis(2L);
+        TaApplicationView view = new TaApplicationView(application, null, "mo-demo", "mo@example.com");
+
+        assertTrue(view.getFinalDecisionRecorded());
+        assertEquals(Application.STATUS_REJECTED, view.getFinalDecisionLabel());
+        assertEquals("This application has been rejected after final review.", view.getFinalDecisionSummary());
+        assertEquals("result-panel result-panel-rejected", view.getFinalDecisionPanelClass());
+        assertFalse(view.getHasInterviewOutcomeNotes());
     }
 
     private ApplicationService buildService() {

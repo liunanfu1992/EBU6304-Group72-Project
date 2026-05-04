@@ -25,8 +25,16 @@ public class TaJobView {
         return matchView.getMatchedSkills();
     }
 
+    public boolean isMatchedSkill(String skill) {
+        return containsSkillIgnoreCase(getMatchedSkills(), skill);
+    }
+
     public List<String> getMissingSkills() {
         return matchView.getMissingSkills();
+    }
+
+    public boolean isMissingSkill(String skill) {
+        return containsSkillIgnoreCase(getMissingSkills(), skill);
     }
 
     public int getMatchPercent() {
@@ -47,5 +55,17 @@ public class TaJobView {
 
     public String getModuleOwnerEmail() {
         return moduleOwnerEmail;
+    }
+
+    private boolean containsSkillIgnoreCase(List<String> skills, String candidate) {
+        if (skills == null || candidate == null || candidate.isBlank()) {
+            return false;
+        }
+        for (String skill : skills) {
+            if (skill != null && skill.trim().equalsIgnoreCase(candidate.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

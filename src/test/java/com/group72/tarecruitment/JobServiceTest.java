@@ -342,6 +342,8 @@ class JobServiceTest {
         assertEquals("Programming TA", jobViews.get(0).getJob().getTitle());
         assertEquals("dr-smith", jobViews.get(0).getModuleOwnerDisplayName());
         assertEquals("smith@example.com", jobViews.get(0).getModuleOwnerEmail());
+        assertTrue(jobViews.get(0).isMatchedSkill("Java"));
+        assertFalse(jobViews.get(0).isMissingSkill("Java"));
     }
 
     @Test

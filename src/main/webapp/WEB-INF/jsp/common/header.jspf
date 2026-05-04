@@ -302,6 +302,14 @@
             background: rgba(117, 127, 154, 0.14);
             color: #475569;
         }
+        .tag-match {
+            background: var(--success-bg);
+            color: var(--success-ink);
+        }
+        .tag-missing {
+            background: var(--error-bg);
+            color: var(--error-ink);
+        }
         .tag-selectable {
             display: inline-flex;
             align-items: center;
@@ -394,6 +402,13 @@
             display: block;
             margin-bottom: 6px;
             color: var(--success-ink);
+        }
+        .result-panel-rejected {
+            border-color: rgba(153, 27, 27, 0.18);
+            background: linear-gradient(135deg, rgba(254, 226, 226, 0.72), rgba(255, 255, 255, 0.76));
+        }
+        .result-panel-rejected strong {
+            color: var(--error-ink);
         }
         .table-note {
             color: var(--ink-soft);

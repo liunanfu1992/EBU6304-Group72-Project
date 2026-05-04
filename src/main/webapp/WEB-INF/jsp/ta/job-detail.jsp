@@ -33,9 +33,20 @@
         <strong>Required skills</strong>
         <div class="tag-list">
             <c:forEach items="${jobMatch.job.requiredSkills}" var="skill">
-                <span class="tag">${skill}</span>
+                <c:choose>
+                    <c:when test="${jobMatch.isMatchedSkill(skill)}">
+                        <span class="tag tag-match">${skill}</span>
+                    </c:when>
+                    <c:when test="${jobMatch.isMissingSkill(skill)}">
+                        <span class="tag tag-missing">${skill}</span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="tag">${skill}</span>
+                    </c:otherwise>
+                </c:choose>
             </c:forEach>
         </div>
+        <p class="helper">Green skills are already in your profile. Red skills are missing from your predefined skill set.</p>
     </div>
 
     <c:if test="${not empty jobMatch.matchedSkills}">
@@ -43,7 +54,7 @@
             <strong>Matched skills</strong>
             <div class="tag-list">
                 <c:forEach items="${jobMatch.matchedSkills}" var="skill">
-                    <span class="tag">${skill}</span>
+                    <span class="tag tag-match">${skill}</span>
                 </c:forEach>
             </div>
         </div>
@@ -54,7 +65,7 @@
             <strong>Missing predefined skills</strong>
             <div class="tag-list">
                 <c:forEach items="${jobMatch.missingSkills}" var="skill">
-                    <span class="tag tag-muted">${skill}</span>
+                    <span class="tag tag-missing">${skill}</span>
                 </c:forEach>
             </div>
         </div>

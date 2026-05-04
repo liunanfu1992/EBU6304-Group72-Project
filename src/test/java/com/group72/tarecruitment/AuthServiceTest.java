@@ -51,4 +51,27 @@ class AuthServiceTest {
         assertFalse(duplicateResult.isSuccess());
         assertTrue(duplicateResult.getErrors().contains("Username is already in use."));
     }
+
+    @Test
+    void registerAccountShouldValidateUsernameEmailAndPasswordConfirmation() {
+        AuthService authService = new AuthService(
+                new UserRepository(tempDir.resolve("users-validation.json")),
+                new ProfileRepository(tempDir.resolve("profiles-validation.json"))
+        );
+
+        RegistrationResult result = authService.registerAccount(
+                "bad user",
+                "short",
+                "different",
+                Role.TA,
+                "not-an-email"
+        );
+
+        assertFalse(result.isSuccess());
+        assertTrue(result.getErrors().contains("Username must be 3-30 characters and use only letters, numbers, dots, underscores, or hyphens."));
+        assertTrue(result.getErrors().contains("Password must be at least 8 characters."));
+        assertTrue(result.getErrors().contains("Passwords do not match."));
+        assertTrue(result.getErrors().contains("Email must be a valid address."));
+    }
+
 }

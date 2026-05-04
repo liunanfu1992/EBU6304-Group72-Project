@@ -147,6 +147,36 @@ public class TaApplicationView {
         return getFinalDecisionRecorded() ? getStatusLabel() : "-";
     }
 
+    public String getFinalDecisionAtDisplay() {
+        Long finalDecisionAt = application == null ? null : application.getFinalDecisionAtEpochMillis();
+        return finalDecisionAt == null ? "-" : DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(finalDecisionAt));
+    }
+
+    public String getFinalDecisionSummary() {
+        if (application == null || !application.isFinalDecisionMade()) {
+            return "No final recruitment result has been recorded yet.";
+        }
+        if (application.isOffered()) {
+            return "You have received a final offer for this TA role.";
+        }
+        if (application.isRejected()) {
+            return "This application has been rejected after final review.";
+        }
+        return "A final recruitment result has been recorded for this application.";
+    }
+
+    public String getFinalDecisionPanelClass() {
+        if (application != null && application.isRejected()) {
+            return "result-panel result-panel-rejected";
+        }
+        return "result-panel";
+    }
+
+    public boolean getHasInterviewOutcomeNotes() {
+        String notes = application == null ? null : application.getInterviewOutcomeNotes();
+        return notes != null && !notes.isBlank();
+    }
+
     public String getInterviewOutcomeNotesDisplay() {
         String notes = application == null ? null : application.getInterviewOutcomeNotes();
         return notes == null || notes.isBlank() ? "-" : notes;

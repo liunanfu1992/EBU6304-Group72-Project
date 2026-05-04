@@ -74,4 +74,23 @@ class AuthServiceTest {
         assertTrue(result.getErrors().contains("Email must be a valid address."));
     }
 
+    @Test
+    void registerAccountShouldRejectDuplicateEmailIgnoringCase() {
+        AuthService authService = new AuthService(
+                new UserRepository(tempDir.resolve("users-email.json")),
+                new ProfileRepository(tempDir.resolve("profiles-email.json"))
+        );
+
+        assertTrue(authService.registerAccount("first-user", "secret123", "secret123", Role.MO, "Shared@example.com").isSuccess());
+        RegistrationResult duplicateEmailResult = authService.registerAccount(
+                "second-user",
+                "secret123",
+                "secret123",
+                Role.TA,
+                "shared@example.com"
+        );
+
+        assertFalse(duplicateEmailResult.isSuccess());
+        assertTrue(duplicateEmailResult.getErrors().contains("Email is already in use."));
+    }
 }

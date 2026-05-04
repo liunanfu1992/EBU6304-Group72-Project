@@ -80,6 +80,15 @@
                 });
             });
         });
+
+        document.querySelectorAll("[data-validation-message]").forEach(function (field) {
+            field.addEventListener("invalid", function () {
+                field.setCustomValidity(field.getAttribute("data-validation-message"));
+            });
+            field.addEventListener("input", function () {
+                field.setCustomValidity("");
+            });
+        });
     });
 </script>
 <div class="footer-note">Sprint 3 demo built with Servlet, JSP, lightweight JavaScript, and local JSON persistence.</div>

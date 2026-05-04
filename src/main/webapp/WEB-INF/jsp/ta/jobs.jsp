@@ -103,7 +103,17 @@
                             <strong>Required skills</strong>
                             <div class="tag-list">
                                 <c:forEach items="${match.job.requiredSkills}" var="skill">
-                                    <span class="tag">${skill}</span>
+                                    <c:choose>
+                                        <c:when test="${match.isMatchedSkill(skill)}">
+                                            <span class="tag tag-match">${skill}</span>
+                                        </c:when>
+                                        <c:when test="${match.isMissingSkill(skill)}">
+                                            <span class="tag tag-missing">${skill}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="tag">${skill}</span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </c:forEach>
                             </div>
                         </div>
@@ -113,7 +123,7 @@
                                 <strong>Matched skills</strong>
                                 <div class="tag-list">
                                     <c:forEach items="${match.matchedSkills}" var="skill">
-                                        <span class="tag">${skill}</span>
+                                        <span class="tag tag-match">${skill}</span>
                                     </c:forEach>
                                 </div>
                             </div>
@@ -124,7 +134,7 @@
                                 <strong>Missing predefined skills</strong>
                                 <div class="tag-list">
                                     <c:forEach items="${match.missingSkills}" var="skill">
-                                        <span class="tag tag-muted">${skill}</span>
+                                        <span class="tag tag-missing">${skill}</span>
                                     </c:forEach>
                                 </div>
                             </div>

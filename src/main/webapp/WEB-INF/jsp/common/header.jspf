@@ -302,6 +302,14 @@
             background: rgba(117, 127, 154, 0.14);
             color: #475569;
         }
+        .tag-match {
+            background: var(--success-bg);
+            color: var(--success-ink);
+        }
+        .tag-missing {
+            background: var(--error-bg);
+            color: var(--error-ink);
+        }
         .tag-selectable {
             display: inline-flex;
             align-items: center;

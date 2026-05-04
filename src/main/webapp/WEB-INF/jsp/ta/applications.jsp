@@ -97,9 +97,20 @@
                                 </div>
                             </c:if>
                             <c:if test="${applicationView.finalDecisionRecorded}">
-                                <div class="result-panel">
-                                    <strong>Final decision: ${applicationView.finalDecisionLabel}</strong>
-                                    <span>Interview notes: <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></span>
+                                <div class="${applicationView.finalDecisionPanelClass}">
+                                    <strong>Final recruitment result: ${applicationView.finalDecisionLabel}</strong>
+                                    <span>${applicationView.finalDecisionSummary}</span>
+                                    <c:if test="${applicationView.finalDecisionAtDisplay ne '-'}">
+                                        <p class="helper">Recorded ${applicationView.finalDecisionAtDisplay}</p>
+                                    </c:if>
+                                    <c:choose>
+                                        <c:when test="${applicationView.hasInterviewOutcomeNotes}">
+                                            <p class="muted"><strong>MO feedback:</strong> <c:out value="${applicationView.interviewOutcomeNotesDisplay}"/></p>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <p class="muted">No MO feedback notes were provided for this final decision.</p>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </c:if>
                             <div class="job-section">

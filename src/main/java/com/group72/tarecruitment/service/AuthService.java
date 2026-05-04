@@ -11,8 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class AuthService {
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9._-]{3,30}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
 
@@ -48,21 +53,36 @@ public class AuthService {
     }
 
     public RegistrationResult registerAccount(String username, String plainPassword, Role role, String email) {
+        return registerAccount(username, plainPassword, plainPassword, role, email);
+    }
+
+    public RegistrationResult registerAccount(String username, String plainPassword, String confirmPassword, Role role, String email) {
         List<String> errors = new ArrayList<>();
         String normalizedUsername = safeTrim(username);
         String normalizedEmail = safeTrim(email);
 
         if (normalizedUsername.isEmpty()) {
             errors.add("Username is required.");
+        } else if (!USERNAME_PATTERN.matcher(normalizedUsername).matches()) {
+            errors.add("Username must be 3-30 characters and use only letters, numbers, dots, underscores, or hyphens.");
         }
         if (plainPassword == null || plainPassword.isBlank()) {
             errors.add("Password is required.");
+        } else if (plainPassword.length() < MIN_PASSWORD_LENGTH) {
+            errors.add("Password must be at least 8 characters.");
+        }
+        if (confirmPassword == null || confirmPassword.isBlank()) {
+            errors.add("Password confirmation is required.");
+        } else if (plainPassword != null && !plainPassword.equals(confirmPassword)) {
+            errors.add("Passwords do not match.");
         }
         if (role == null) {
             errors.add("Role is required.");
         }
         if (normalizedEmail.isEmpty()) {
             errors.add("Email is required.");
+        } else if (!EMAIL_PATTERN.matcher(normalizedEmail).matches()) {
+            errors.add("Email must be a valid address.");
         }
         if (role == Role.ADMIN) {
             errors.add("Admin accounts cannot be registered.");

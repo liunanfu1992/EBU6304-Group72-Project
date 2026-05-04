@@ -21,19 +21,30 @@
         <div class="form-grid">
             <div class="field-card">
                 <label for="username">Username</label>
-                <input id="username" name="username" value="${formUsername}" required>
+                <input id="username" name="username" value="${formUsername}" required minlength="3" maxlength="30"
+                       pattern="[A-Za-z0-9._-]{3,30}"
+                       data-validation-message="Username must be 3-30 characters and use only letters, numbers, dots, underscores, or hyphens.">
+                <p class="helper">Use 3-30 letters, numbers, dots, underscores, or hyphens.</p>
             </div>
             <div class="field-card">
                 <label for="email">Email</label>
-                <input id="email" name="email" type="email" value="${formEmail}" required>
+                <input id="email" name="email" type="email" value="${formEmail}" required
+                       data-validation-message="Email must be a valid address.">
             </div>
             <div class="field-card">
                 <label for="password">Password</label>
-                <input id="password" name="password" type="password" required>
+                <input id="password" name="password" type="password" required minlength="8"
+                       data-validation-message="Password must be at least 8 characters.">
+                <p class="helper">Use at least 8 characters.</p>
+            </div>
+            <div class="field-card">
+                <label for="confirmPassword">Confirm Password</label>
+                <input id="confirmPassword" name="confirmPassword" type="password" required minlength="8"
+                       data-validation-message="Password confirmation is required.">
             </div>
             <div class="field-card">
                 <label for="role">Role</label>
-                <select id="role" name="role" required>
+                <select id="role" name="role" required data-validation-message="Please select TA or MO.">
                     <option value="">Select role</option>
                     <c:forEach items="${roleOptions}" var="role">
                         <option value="${role}" <c:if test="${selectedRole eq role}">selected</c:if>>${role}</option>

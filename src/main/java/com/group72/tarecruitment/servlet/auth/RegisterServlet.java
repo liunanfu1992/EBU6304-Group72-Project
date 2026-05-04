@@ -34,6 +34,7 @@ public class RegisterServlet extends HttpServlet {
         RegistrationResult result = authService.registerAccount(
                 request.getParameter("username"),
                 request.getParameter("password"),
+                request.getParameter("confirmPassword"),
                 role,
                 request.getParameter("email")
         );

@@ -132,6 +132,7 @@
                         <th>Candidate</th>
                         <th>Student ID</th>
                         <th>Job</th>
+                        <th>Skill Match</th>
                         <th>Status</th>
                         <th>Submitted</th>
                         <th>CV</th>
@@ -150,6 +151,12 @@
                             <td>
                                 <c:out value="${applicationView.job == null ? 'Job unavailable' : applicationView.job.title}"/><br>
                                 <span class="muted"><c:out value="${applicationView.job == null ? '-' : applicationView.job.moduleCode}"/></span>
+                            </td>
+                            <td>
+                                <span class="match-badge match-${applicationView.matchTone}">
+                                    ${applicationView.matchLabel} (${applicationView.matchPercent}%)
+                                </span>
+                                <p class="helper">${applicationView.matchEvidenceSummary}</p>
                             </td>
                             <td><span class="${applicationView.statusTagClass}">${applicationView.statusLabel}</span></td>
                             <td>${applicationView.submittedAtDisplay}</td>

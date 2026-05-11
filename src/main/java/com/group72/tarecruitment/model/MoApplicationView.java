@@ -106,6 +106,57 @@ public class MoApplicationView {
         return missing;
     }
 
+    public int getMatchPercent() {
+        List<String> requiredSkills = job == null ? List.of() : SkillCatalog.extractPredefinedSkills(job.getRequiredSkills());
+        if (requiredSkills.isEmpty()) {
+            return 100;
+        }
+        return getMatchedSkills().size() * 100 / requiredSkills.size();
+    }
+
+    public String getMatchLabel() {
+        if (getMissingSkills().isEmpty()) {
+            return "Strong candidate";
+        }
+        if (getMatchPercent() >= 50) {
+            return "Promising candidate";
+        }
+        if (getMatchPercent() > 0) {
+            return "Partial candidate";
+        }
+        return "Low match";
+    }
+
+    public String getMatchTone() {
+        if (getMissingSkills().isEmpty()) {
+            return "success";
+        }
+        if (getMatchPercent() >= 50) {
+            return "info";
+        }
+        if (getMatchPercent() > 0) {
+            return "warning";
+        }
+        return "muted";
+    }
+
+    public String getMatchEvidenceSummary() {
+        List<String> requiredSkills = job == null ? List.of() : SkillCatalog.extractPredefinedSkills(job.getRequiredSkills());
+        if (requiredSkills.isEmpty()) {
+            return "No predefined required skills are attached to this job, so the candidate is treated as a complete structured match.";
+        }
+        return getMatchedSkills().size() + " of " + requiredSkills.size()
+                + " predefined required skills matched; " + getMissingSkills().size() + " missing.";
+    }
+
+    public boolean isMatchedSkill(String skill) {
+        return containsSkillIgnoreCase(getMatchedSkills(), skill);
+    }
+
+    public boolean isMissingSkill(String skill) {
+        return containsSkillIgnoreCase(getMissingSkills(), skill);
+    }
+
     public boolean hasCv() {
         return profile != null && profile.hasCv();
     }

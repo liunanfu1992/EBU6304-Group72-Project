@@ -159,6 +159,12 @@ class ApplicationServiceTest {
         assertEquals("20260001", views.get(0).getStudentIdDisplay());
         assertEquals("Computer Science", views.get(0).getMajorDisplay());
         assertTrue(views.get(0).hasCv());
+        assertEquals(100, views.get(0).getMatchPercent());
+        assertEquals("Strong candidate", views.get(0).getMatchLabel());
+        assertEquals("success", views.get(0).getMatchTone());
+        assertTrue(views.get(0).isMatchedSkill("Java"));
+        assertFalse(views.get(0).isMissingSkill("Java"));
+        assertEquals("1 of 1 predefined required skills matched; 0 missing.", views.get(0).getMatchEvidenceSummary());
         assertTrue(service.findOwnedApplicationView(views.get(0).getApplication().getId(), "mo-1").isPresent());
     }
 

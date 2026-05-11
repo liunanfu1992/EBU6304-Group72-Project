@@ -93,6 +93,13 @@
             <span class="metric-label">${applicationView.studentIdDisplay}</span>
         </div>
         <div class="metric-card">
+            <strong>Skill Match</strong>
+            <span class="match-badge match-${applicationView.matchTone}">
+                ${applicationView.matchLabel} (${applicationView.matchPercent}%)
+            </span>
+            <span class="metric-label">${applicationView.matchEvidenceSummary}</span>
+        </div>
+        <div class="metric-card">
             <strong>Submitted</strong>
             <span class="metric-label">${applicationView.submittedAtDisplay}</span>
         </div>
@@ -126,9 +133,20 @@
                     <strong>Required skills</strong>
                     <div class="tag-list">
                         <c:forEach items="${applicationView.job.requiredSkills}" var="skill">
-                            <span class="tag">${skill}</span>
+                            <c:choose>
+                                <c:when test="${applicationView.isMatchedSkill(skill)}">
+                                    <span class="tag tag-match">${skill}</span>
+                                </c:when>
+                                <c:when test="${applicationView.isMissingSkill(skill)}">
+                                    <span class="tag tag-missing">${skill}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="tag">${skill}</span>
+                                </c:otherwise>
+                            </c:choose>
                         </c:forEach>
                     </div>
+                    <p class="helper">Green skills are present in the candidate profile. Red skills are missing from the candidate's predefined skills.</p>
                 </div>
             </div>
         </c:otherwise>
@@ -253,11 +271,15 @@
 
         <div class="detail-panel">
             <h4>Skill Fit Snapshot</h4>
+            <span class="match-badge match-${applicationView.matchTone}">
+                ${applicationView.matchLabel} (${applicationView.matchPercent}%)
+            </span>
+            <p class="helper">${applicationView.matchEvidenceSummary}</p>
             <c:if test="${not empty applicationView.matchedSkills}">
                 <strong>Matched</strong>
                 <div class="tag-list">
                     <c:forEach items="${applicationView.matchedSkills}" var="skill">
-                        <span class="tag">${skill}</span>
+                        <span class="tag tag-match">${skill}</span>
                     </c:forEach>
                 </div>
             </c:if>
@@ -265,7 +287,7 @@
                 <strong>Missing</strong>
                 <div class="tag-list">
                     <c:forEach items="${applicationView.missingSkills}" var="skill">
-                        <span class="tag tag-muted">${skill}</span>
+                        <span class="tag tag-missing">${skill}</span>
                     </c:forEach>
                 </div>
             </c:if>

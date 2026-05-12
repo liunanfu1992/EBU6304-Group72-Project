@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 public class AdminWorkloadView {
     public static final int LIGHT_LOAD_THRESHOLD = 8;
     public static final int HIGH_LOAD_THRESHOLD = 15;
+    public static final int SCHOOL_HOUR_LIMIT = 15;
 
     private final User taUser;
     private final Profile profile;
@@ -45,6 +46,21 @@ public class AdminWorkloadView {
 
     public boolean isHighLoad() {
         return totalAssignedHours > HIGH_LOAD_THRESHOLD;
+    }
+
+    public boolean isOverloaded() {
+        return totalAssignedHours > SCHOOL_HOUR_LIMIT;
+    }
+
+    public int getOverloadHours() {
+        return Math.max(0, totalAssignedHours - SCHOOL_HOUR_LIMIT);
+    }
+
+    public String getOverloadSummary() {
+        if (!isOverloaded()) {
+            return "Within " + SCHOOL_HOUR_LIMIT + "h limit";
+        }
+        return getOverloadHours() + "h over " + SCHOOL_HOUR_LIMIT + "h limit";
     }
 
     public boolean isBalancedLoad() {

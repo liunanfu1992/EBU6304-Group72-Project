@@ -2,8 +2,14 @@
 <div class="card">
     <span class="eyebrow">Admin Console</span>
     <h2 class="card-title">Admin Dashboard</h2>
-    <p class="card-subtitle">Monitor Sprint 3 data health, offered TA workload, stored records, and CV files from one read-only console.</p>
+    <p class="card-subtitle">Monitor Sprint 4 recruitment statistics, overload alerts, stored records, and CV files from one read-only console.</p>
 </div>
+
+<c:if test="${dashboard.hasOverloadAlerts()}">
+    <div class="warning">
+        ${dashboard.overloadedTaCount} TA workload alert(s) exceed the ${dashboard.schoolHourLimit}h school limit.
+    </div>
+</c:if>
 
 <div class="metrics-row">
     <div class="metric-card">
@@ -30,6 +36,14 @@
         <span class="metric-value">${dashboard.averageAssignedHours}</span>
         <span class="metric-label">Average hours per offered TA</span>
     </div>
+    <div class="metric-card">
+        <span class="metric-value">${dashboard.recruitmentStats.totalApplications}</span>
+        <span class="metric-label">Applications tracked (${dashboard.recruitmentStats.openPipelineCount} still active)</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-value">${dashboard.recruitmentStats.offerRatePercent}%</span>
+        <span class="metric-label">Offer rate across final decisions</span>
+    </div>
 </div>
 
 <div class="card">
@@ -49,14 +63,41 @@
 </div>
 
 <div class="card">
+    <h3 class="card-title">Recruitment Statistics</h3>
+    <div class="dashboard-grid">
+        <div class="metric-card">
+            <strong>Job Pipeline</strong>
+            <div class="tag-list">
+                <span class="tag">Open: ${dashboard.recruitmentStats.activeJobCount}</span>
+                <span class="tag tag-muted">Draft: ${dashboard.recruitmentStats.draftJobCount}</span>
+                <span class="tag tag-missing">Closed: ${dashboard.recruitmentStats.closedJobCount}</span>
+            </div>
+            <p class="metric-label">School-wide job status distribution.</p>
+        </div>
+        <div class="metric-card">
+            <strong>Application Pipeline</strong>
+            <div class="tag-list">
+                <span class="tag">Pending: ${dashboard.recruitmentStats.pendingApplications}</span>
+                <span class="tag">Shortlisted: ${dashboard.recruitmentStats.shortlistedApplications}</span>
+                <span class="tag tag-match">Offered: ${dashboard.recruitmentStats.offeredApplications}</span>
+                <span class="tag tag-missing">Rejected: ${dashboard.recruitmentStats.rejectedApplications}</span>
+                <span class="tag tag-muted">Withdrawn: ${dashboard.recruitmentStats.withdrawnApplications}</span>
+            </div>
+            <p class="metric-label">${dashboard.recruitmentStats.finalDecisionCount} final decision(s) recorded.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
     <h3 class="card-title">Offered TA Workload</h3>
-    <p class="helper">Sprint 3 workload totals are calculated from offered applications and each job's weekly hours.</p>
+    <p class="helper">Sprint 4 workload totals are calculated from offered applications and each job's weekly hours.</p>
     <div class="context-bar">
         <span class="tag">Light: ${dashboard.lightLoadTaCount}</span>
         <span class="tag">Balanced: ${dashboard.balancedLoadTaCount}</span>
         <span class="tag">High: ${dashboard.highLoadTaCount}</span>
+        <span class="tag tag-missing">Over limit: ${dashboard.overloadedTaCount}</span>
     </div>
-    <p class="table-note">Load band helps admins spot over-assigned TAs before final deployment.</p>
+    <p class="table-note">The school limit is ${dashboard.schoolHourLimit}h per TA. Over-limit rows need manual review before final deployment.</p>
     <c:choose>
         <c:when test="${empty dashboard.workloadRows}">
             <p class="muted">No offered TA workload records are available yet.</p>
@@ -70,6 +111,7 @@
                     <th>Offered Jobs</th>
                     <th>Total Assigned Hours</th>
                     <th>Load Band</th>
+                    <th>Limit Check</th>
                     <th>Assigned Job Detail</th>
                 </tr>
                 </thead>
@@ -81,6 +123,16 @@
                         <td>${workload.offeredJobCount}</td>
                         <td>${workload.totalAssignedHours}</td>
                         <td><span class="${workload.loadBandTagClass}">${workload.loadBandLabel}</span></td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${workload.overloaded}">
+                                    <span class="tag tag-missing">${workload.overloadSummary}</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="tag tag-match">${workload.overloadSummary}</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
                         <td><c:out value="${workload.assignedJobSummary}"/></td>
                     </tr>
                 </c:forEach>

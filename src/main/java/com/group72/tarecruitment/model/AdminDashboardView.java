@@ -9,6 +9,7 @@ public class AdminDashboardView {
     private final List<AdminPathStatusView> pathStatuses;
     private final List<AdminCvFileView> cvFiles;
     private final List<AdminWorkloadView> workloadRows;
+    private final AdminRecruitmentStatsView recruitmentStats;
     private final int taUserCount;
     private final int moUserCount;
     private final int adminUserCount;
@@ -24,6 +25,7 @@ public class AdminDashboardView {
             List<AdminPathStatusView> pathStatuses,
             List<AdminCvFileView> cvFiles,
             List<AdminWorkloadView> workloadRows,
+            AdminRecruitmentStatsView recruitmentStats,
             int taUserCount,
             int moUserCount,
             int adminUserCount,
@@ -38,6 +40,7 @@ public class AdminDashboardView {
         this.pathStatuses = List.copyOf(pathStatuses);
         this.cvFiles = List.copyOf(cvFiles);
         this.workloadRows = List.copyOf(workloadRows);
+        this.recruitmentStats = recruitmentStats;
         this.taUserCount = taUserCount;
         this.moUserCount = moUserCount;
         this.adminUserCount = adminUserCount;
@@ -69,6 +72,10 @@ public class AdminDashboardView {
 
     public List<AdminWorkloadView> getWorkloadRows() {
         return workloadRows;
+    }
+
+    public AdminRecruitmentStatsView getRecruitmentStats() {
+        return recruitmentStats;
     }
 
     public int getUserCount() {
@@ -121,6 +128,18 @@ public class AdminDashboardView {
 
     public int getHighLoadTaCount() {
         return (int) workloadRows.stream().filter(AdminWorkloadView::isHighLoad).count();
+    }
+
+    public int getOverloadedTaCount() {
+        return (int) workloadRows.stream().filter(AdminWorkloadView::isOverloaded).count();
+    }
+
+    public boolean hasOverloadAlerts() {
+        return getOverloadedTaCount() > 0;
+    }
+
+    public int getSchoolHourLimit() {
+        return AdminWorkloadView.SCHOOL_HOUR_LIMIT;
     }
 
     public int getBalancedLoadTaCount() {

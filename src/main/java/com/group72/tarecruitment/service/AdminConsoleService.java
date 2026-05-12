@@ -5,6 +5,7 @@ import com.group72.tarecruitment.model.AdminWorkloadView;
 import com.group72.tarecruitment.model.AdminCvFileView;
 import com.group72.tarecruitment.model.AdminDashboardView;
 import com.group72.tarecruitment.model.AdminPathStatusView;
+import com.group72.tarecruitment.model.AdminRecruitmentStatsView;
 import com.group72.tarecruitment.model.Application;
 import com.group72.tarecruitment.model.Job;
 import com.group72.tarecruitment.model.Profile;
@@ -95,6 +96,7 @@ public class AdminConsoleService {
         List<Job> jobs = jobRepository.findAll().stream()
                 .sorted(Comparator.comparing(job -> safeLower(job.getTitle())))
                 .toList();
+        List<Application> applications = applicationRepository.findAll();
 
         Map<String, Profile> profilesByUserId = profiles.stream()
                 .collect(Collectors.toMap(Profile::getUserId, profile -> profile, (left, right) -> left));
@@ -103,7 +105,8 @@ public class AdminConsoleService {
         Map<String, Job> jobsById = jobs.stream()
                 .collect(Collectors.toMap(Job::getId, job -> job, (left, right) -> left));
         List<AdminCvFileView> cvFiles = listCvFiles(profilesByUserId);
-        List<AdminWorkloadView> workloadRows = buildWorkloadRows(usersById, profilesByUserId, jobsById);
+        List<AdminWorkloadView> workloadRows = buildWorkloadRows(applications, usersById, profilesByUserId, jobsById);
+        AdminRecruitmentStatsView recruitmentStats = buildRecruitmentStats(applications, jobs);
 
         int taUserCount = (int) users.stream().filter(user -> user.getRole() == Role.TA).count();
         int moUserCount = (int) users.stream().filter(user -> user.getRole() == Role.MO).count();
@@ -129,6 +132,7 @@ public class AdminConsoleService {
                 ),
                 cvFiles,
                 workloadRows,
+                recruitmentStats,
                 taUserCount,
                 moUserCount,
                 adminUserCount,
@@ -140,11 +144,12 @@ public class AdminConsoleService {
     }
 
     private List<AdminWorkloadView> buildWorkloadRows(
+            List<Application> applications,
             Map<String, User> usersById,
             Map<String, Profile> profilesByUserId,
             Map<String, Job> jobsById
     ) {
-        Map<String, List<Job>> offeredJobsByTa = applicationRepository.findAll().stream()
+        Map<String, List<Job>> offeredJobsByTa = applications.stream()
                 .filter(this::isValidOfferedWorkloadRecord)
                 .collect(Collectors.groupingBy(
                         Application::getTaUserId,
@@ -155,6 +160,29 @@ public class AdminConsoleService {
                 .map(entry -> toWorkloadView(entry.getKey(), entry.getValue(), usersById, profilesByUserId))
                 .sorted(Comparator.comparing(AdminWorkloadView::getDisplayName, String.CASE_INSENSITIVE_ORDER))
                 .toList();
+    }
+
+    private AdminRecruitmentStatsView buildRecruitmentStats(List<Application> applications, List<Job> jobs) {
+        int pendingApplications = (int) applications.stream().filter(Application::isPending).count();
+        int shortlistedApplications = (int) applications.stream().filter(Application::isShortlisted).count();
+        int offeredApplications = (int) applications.stream().filter(Application::isOffered).count();
+        int rejectedApplications = (int) applications.stream().filter(Application::isRejected).count();
+        int withdrawnApplications = (int) applications.stream().filter(Application::isWithdrawn).count();
+        int activeJobCount = (int) jobs.stream().filter(Job::isOpen).count();
+        int draftJobCount = (int) jobs.stream().filter(Job::isDraft).count();
+        int closedJobCount = (int) jobs.stream().filter(Job::isClosed).count();
+
+        return new AdminRecruitmentStatsView(
+                applications.size(),
+                pendingApplications,
+                shortlistedApplications,
+                offeredApplications,
+                rejectedApplications,
+                withdrawnApplications,
+                activeJobCount,
+                draftJobCount,
+                closedJobCount
+        );
     }
 
     private boolean isValidOfferedWorkloadRecord(Application application) {

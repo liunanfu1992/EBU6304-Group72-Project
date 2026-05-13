@@ -155,7 +155,7 @@
 
 <div class="card">
     <h3 class="card-title">Interview Schedule</h3>
-    <p class="helper">Sprint 3 scheduling is available after the candidate has been shortlisted.</p>
+    <p class="helper">Scheduling is available after the candidate has been shortlisted.</p>
 
     <div class="detail-grid">
         <div class="detail-panel">

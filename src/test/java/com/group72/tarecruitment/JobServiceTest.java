@@ -353,7 +353,7 @@ class JobServiceTest {
         UserRepository userRepository = new UserRepository(tempDir.resolve("users.json"));
         JobService service = new JobService(jobRepository, profileRepository, userRepository);
 
-        userRepository.save(new User("mo-1", "mo-demo", "", Role.MO, "mo@example.com"));
+        userRepository.save(new User("mo-1", "mo-user", "", Role.MO, "mo@example.com"));
 
         JobCreateResult openJob = service.createJob(
                 "Visible Job",

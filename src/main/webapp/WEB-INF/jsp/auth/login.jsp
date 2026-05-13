@@ -5,12 +5,12 @@
         <div>
             <span class="eyebrow">Access Portal</span>
             <h2 class="card-title">Login</h2>
-            <p class="card-subtitle">Use a seeded demo account to test the Sprint 3 TA, MO, and Admin workflow.</p>
+            <p class="card-subtitle">Sign in with a TA, MO, or Admin account to access the recruitment workflow.</p>
         </div>
         <div class="metrics-row">
             <div class="metric-card">
                 <span class="metric-value">3 roles</span>
-                <span class="metric-label">TA, MO, and Admin demo entries</span>
+                <span class="metric-label">TA, MO, and Admin access</span>
             </div>
         </div>
     </div>
@@ -45,22 +45,4 @@
     </form>
 </div>
 
-<div class="card">
-    <span class="eyebrow">Demo Accounts</span>
-    <h3 class="card-title">Seeded Demo Accounts</h3>
-    <div class="dashboard-grid">
-        <div class="metric-card">
-            <strong>TA</strong>
-            <span class="metric-label"><code>ta-demo</code> / <code>password123</code></span>
-        </div>
-        <div class="metric-card">
-            <strong>MO</strong>
-            <span class="metric-label"><code>mo-demo</code> / <code>password123</code></span>
-        </div>
-        <div class="metric-card">
-            <strong>Admin</strong>
-            <span class="metric-label"><code>admin-demo</code> / <code>password123</code></span>
-        </div>
-    </div>
-</div>
 <%@ include file="../common/footer.jspf" %>

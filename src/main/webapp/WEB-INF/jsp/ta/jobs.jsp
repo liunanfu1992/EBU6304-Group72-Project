@@ -140,7 +140,7 @@
                             </div>
                         </c:if>
 
-                        <p class="helper">Match score only considers predefined skills shared by TA profiles and job postings in Sprint 1.</p>
+                        <p class="helper">Match score only considers predefined skills shared by TA profiles and job postings.</p>
                         <div class="actions-row">
                             <a class="button-secondary" href="${pageContext.request.contextPath}/ta/jobs/view?jobId=${match.job.id}">View Details</a>
                             <a class="button-secondary" href="${pageContext.request.contextPath}/ta/profile">Refine My Skills</a>

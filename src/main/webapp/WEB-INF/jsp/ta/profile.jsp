@@ -4,7 +4,7 @@
     <span class="eyebrow">TA Profile</span>
     <h2 class="card-title">Profile and Skills</h2>
     <p class="card-subtitle">Complete your profile with a structured skill record for future job matching.</p>
-    <p class="helper">Matching in Sprint 1 is based on predefined skills first. Custom skills are kept as supplementary context.</p>
+    <p class="helper">Matching is based on predefined skills first. Custom skills are kept as supplementary context.</p>
 
     <c:if test="${param.saved eq '1'}">
         <div class="success">Profile saved successfully.</div>

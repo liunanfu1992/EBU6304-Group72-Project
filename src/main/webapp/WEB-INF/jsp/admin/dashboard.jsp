@@ -2,7 +2,7 @@
 <div class="card">
     <span class="eyebrow">Admin Console</span>
     <h2 class="card-title">Admin Dashboard</h2>
-    <p class="card-subtitle">Monitor Sprint 4 recruitment statistics, overload alerts, stored records, and CV files from one read-only console.</p>
+    <p class="card-subtitle">Monitor recruitment statistics, overload alerts, stored records, and CV files from one read-only console.</p>
 </div>
 
 <c:if test="${dashboard.hasOverloadAlerts()}">
@@ -90,7 +90,7 @@
 
 <div class="card">
     <h3 class="card-title">Offered TA Workload</h3>
-    <p class="helper">Sprint 4 workload totals are calculated from offered applications and each job's weekly hours.</p>
+    <p class="helper">Workload totals are calculated from offered applications and each job's weekly hours.</p>
     <div class="context-bar">
         <span class="tag">Light: ${dashboard.lightLoadTaCount}</span>
         <span class="tag">Balanced: ${dashboard.balancedLoadTaCount}</span>

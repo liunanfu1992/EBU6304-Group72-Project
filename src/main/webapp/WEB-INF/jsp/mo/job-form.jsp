@@ -14,7 +14,7 @@
     </c:if>
 
     <c:if test="${not empty jobDraft and jobDraft.draft}">
-        <div class="info">Draft jobs can be saved with incomplete fields in Sprint 1, but publishing still requires all required fields.</div>
+        <div class="info">Draft jobs can be saved with incomplete fields, but publishing still requires all required fields.</div>
     </c:if>
 
     <c:if test="${param.updated eq '1'}">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <p class="helper">Predefined skills will be used directly by the TA-side matching preview. Custom skills are displayed, but not scored in Sprint 1.</p>
+        <p class="helper">Predefined skills will be used directly by the TA-side matching preview. Custom skills are displayed, but not scored.</p>
 
         <div class="actions-row">
             <button class="button-primary" type="submit" name="submitAction" value="${primaryActionValue}">${primarySubmitLabel}</button>

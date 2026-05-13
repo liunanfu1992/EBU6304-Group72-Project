@@ -91,6 +91,6 @@
         });
     });
 </script>
-<div class="footer-note">Sprint 3 demo built with Servlet, JSP, lightweight JavaScript, and local JSON persistence.</div>
+<div class="footer-note">TA recruitment system built with Servlet, JSP, lightweight JavaScript, and local JSON persistence.</div>
 </body>
 </html>

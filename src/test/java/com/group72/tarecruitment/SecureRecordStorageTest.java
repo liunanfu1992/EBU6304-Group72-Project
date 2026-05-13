@@ -29,7 +29,7 @@ class SecureRecordStorageTest {
         UserRepository userRepository = new UserRepository(usersFile);
         ProfileRepository profileRepository = new ProfileRepository(profilesFile);
 
-        userRepository.save(new User("ta-1", "ta-demo", "hashed-password", Role.TA, "ta@example.com"));
+        userRepository.save(new User("ta-1", "ta-user", "hashed-password", Role.TA, "ta@example.com"));
         profileRepository.save(new Profile(
                 "ta-1",
                 "Alice",

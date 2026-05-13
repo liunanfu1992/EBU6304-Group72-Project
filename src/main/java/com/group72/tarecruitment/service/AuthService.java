@@ -36,9 +36,9 @@ public class AuthService {
         }
 
         List<User> defaultUsers = List.of(
-                new User(UUID.randomUUID().toString(), "ta-demo", PasswordUtil.hash("password123"), Role.TA, "ta@example.com"),
-                new User(UUID.randomUUID().toString(), "mo-demo", PasswordUtil.hash("password123"), Role.MO, "mo@example.com"),
-                new User(UUID.randomUUID().toString(), "admin-demo", PasswordUtil.hash("password123"), Role.ADMIN, "admin@example.com")
+                new User(UUID.randomUUID().toString(), "ta-user", PasswordUtil.hash("password123"), Role.TA, "ta@example.com"),
+                new User(UUID.randomUUID().toString(), "mo-user", PasswordUtil.hash("password123"), Role.MO, "mo@example.com"),
+                new User(UUID.randomUUID().toString(), "admin-user", PasswordUtil.hash("password123"), Role.ADMIN, "admin@example.com")
         );
 
         defaultUsers.forEach(userRepository::save);

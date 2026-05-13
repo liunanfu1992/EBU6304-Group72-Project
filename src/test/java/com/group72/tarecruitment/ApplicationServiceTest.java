@@ -601,7 +601,7 @@ class ApplicationServiceTest {
     void taApplicationViewShouldExplainRejectedFinalDecision() {
         Application application = new Application("app-rejected", "ta-1", "job-1", Application.STATUS_REJECTED, 1L, 1L);
         application.setFinalDecisionAtEpochMillis(2L);
-        TaApplicationView view = new TaApplicationView(application, null, "mo-demo", "mo@example.com");
+        TaApplicationView view = new TaApplicationView(application, null, "mo-user", "mo@example.com");
 
         assertTrue(view.getFinalDecisionRecorded());
         assertEquals(Application.STATUS_REJECTED, view.getFinalDecisionLabel());

@@ -40,9 +40,9 @@ class AdminConsoleServiceTest {
         JobRepository jobRepository = new JobRepository(jobsFile);
         ApplicationRepository applicationRepository = new ApplicationRepository(applicationsFile);
 
-        userRepository.save(new User("ta-1", "ta-demo", "", Role.TA, "ta@example.com"));
-        userRepository.save(new User("mo-1", "mo-demo", "", Role.MO, "mo@example.com"));
-        userRepository.save(new User("admin-1", "admin-demo", "", Role.ADMIN, "admin@example.com"));
+        userRepository.save(new User("ta-1", "ta-user", "", Role.TA, "ta@example.com"));
+        userRepository.save(new User("mo-1", "mo-user", "", Role.MO, "mo@example.com"));
+        userRepository.save(new User("admin-1", "admin-user", "", Role.ADMIN, "admin@example.com"));
 
         profileRepository.save(new Profile(
                 "ta-1",

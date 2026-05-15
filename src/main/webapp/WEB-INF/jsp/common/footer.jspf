@@ -89,6 +89,21 @@
                 field.setCustomValidity("");
             });
         });
+
+        document.querySelectorAll("form[data-loading-form]").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                form.querySelectorAll("button[type='submit']").forEach(function (button) {
+                    button.disabled = true;
+                    var loadingLabel = button.getAttribute("data-loading-label");
+                    if (loadingLabel) {
+                        button.textContent = loadingLabel;
+                    }
+                });
+                form.querySelectorAll("[data-loading-message]").forEach(function (message) {
+                    message.hidden = false;
+                });
+            });
+        });
     });
 </script>
 <div class="footer-note">TA recruitment system built with Servlet, JSP, lightweight JavaScript, and local JSON persistence.</div>

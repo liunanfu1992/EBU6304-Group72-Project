@@ -111,6 +111,65 @@
 </div>
 
 <div class="card">
+    <h3 class="card-title">AI-Assisted Review</h3>
+    <p class="helper">Generate a structured, non-binding review note from the job requirements, candidate profile, and existing skill match evidence.</p>
+    <form method="post" action="${pageContext.request.contextPath}/mo/applications/ai-analysis" data-loading-form>
+        <input type="hidden" name="applicationId" value="${applicationView.application.id}">
+        <input type="hidden" name="jobId" value="${returnJobId}">
+        <button class="button-secondary" type="submit" data-loading-label="Generating...">Generate AI Analysis</button>
+        <span class="helper" data-loading-message hidden>Generating analysis. This may take a few seconds.</span>
+    </form>
+
+    <c:if test="${not empty aiAnalysisResult}">
+        <c:choose>
+            <c:when test="${aiAnalysisResult.success}">
+                <div class="detail-grid">
+                    <div class="detail-panel">
+                        <h4>Summary</h4>
+                        <p><c:out value="${aiAnalysisResult.summary}"/></p>
+                    </div>
+                    <div class="detail-panel">
+                        <h4>Recommendation</h4>
+                        <p><c:out value="${aiAnalysisResult.recommendation}"/></p>
+                    </div>
+                    <div class="detail-panel">
+                        <h4>Strengths</h4>
+                        <ul>
+                            <c:forEach items="${aiAnalysisResult.strengths}" var="item">
+                                <li><c:out value="${item}"/></li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                    <div class="detail-panel">
+                        <h4>Gaps and Risks</h4>
+                        <ul>
+                            <c:forEach items="${aiAnalysisResult.gaps}" var="item">
+                                <li><c:out value="${item}"/></li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                    <div class="detail-panel">
+                        <h4>Interview Focus</h4>
+                        <ul>
+                            <c:forEach items="${aiAnalysisResult.interviewFocus}" var="item">
+                                <li><c:out value="${item}"/></li>
+                            </c:forEach>
+                        </ul>
+                    </div>
+                    <div class="detail-panel">
+                        <h4>Decision Support Notice</h4>
+                        <p><c:out value="${aiAnalysisResult.disclaimer}"/></p>
+                    </div>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="error"><c:out value="${aiAnalysisResult.errorMessage}"/></div>
+            </c:otherwise>
+        </c:choose>
+    </c:if>
+</div>
+
+<div class="card">
     <h3 class="card-title">Applied Job</h3>
     <p class="helper">This section anchors the shared application record to the target job so the review decision stays tied to the correct module posting.</p>
     <c:choose>

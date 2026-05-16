@@ -33,6 +33,7 @@ public final class AppConfig {
         }
 
         appHome = Paths.get(configuredHome).toAbsolutePath().normalize();
+        ensureDirectory(getConfigDir());
         ensureDirectory(getDataDir());
         ensureDirectory(getStorageDir());
         ensureDirectory(getCvStorageDir());
@@ -52,6 +53,15 @@ public final class AppConfig {
     public static Path getStorageDir() {
         requireInitialization();
         return appHome.resolve("storage");
+    }
+
+    public static Path getConfigDir() {
+        requireInitialization();
+        return appHome.resolve("config");
+    }
+
+    public static Path resolveConfigFile(String fileName) {
+        return getConfigDir().resolve(fileName);
     }
 
     public static Path getCvStorageDir() {
